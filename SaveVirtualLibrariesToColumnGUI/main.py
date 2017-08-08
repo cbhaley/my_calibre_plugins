@@ -7,13 +7,15 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+from functools import partial
+
 from PyQt5.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
 
 from calibre_plugins.SaveVirtualLibrariesToColumnGUI.config import namespace, column_name_pref, get_prefs
 
 class SaveVirtualLibrariesToColumnGUIDialog(QDialog):
 
-    def __init__(self, gui, do_user_config, run_it_flag):
+    def __init__(self, gui, icon, do_user_config):
         QDialog.__init__(self, gui)
         self.gui = gui
         self.do_user_config = do_user_config
@@ -26,9 +28,10 @@ class SaveVirtualLibrariesToColumnGUIDialog(QDialog):
 
 		self.name = 'Save Book VLs To Column'
         self.setWindowTitle(self.name)
+		self.setWindowIcon(icon)
 
         self.run_it_button = QPushButton('Run it', self)
-        self.run_it_button.clicked.connect(self.run_it)
+        self.run_it_button.clicked.connect(partial(self.run_it, self))
         self.l.addWidget(self.run_it_button)
 
         self.conf_button = QPushButton(
@@ -38,15 +41,7 @@ class SaveVirtualLibrariesToColumnGUIDialog(QDialog):
 
         self.resize(self.sizeHint())
 		
-		self.run_it_flag = run_it_flag
-
-	def show(self):
-		QDialog.show(self)
-		if self.run_it_flag:
-			self.run_it()
-			self.accept()
-
-	def run_it(self):
+	def run_it(self, parent):
 		from calibre.utils.date import now
 		from calibre.gui2 import error_dialog, info_dialog
 		
@@ -68,13 +63,13 @@ class SaveVirtualLibrariesToColumnGUIDialog(QDialog):
 				if set(current[s]) == set(ans[s]):
 					del ans[s]
 			db.set_field(column_key, ans)
-			info_dialog(self, self.name, 
+			info_dialog(parent, self.name, 
 				'Updated column {0} for {1} books in {2}'.format(column_key, 
 						len(ans), now() - start_time),
 				show=True)
 		else:
-			error_dialog(self, self.name, 'No lookup key has been provided', show=True)
+			error_dialog(parent, self.name, 'No lookup key has been provided', show=True)
 			
     def config(self):
-        self.do_user_config(parent=self)
+        self.do_user_config()
 
