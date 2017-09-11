@@ -8,12 +8,15 @@ __copyright__ = '2011, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 from functools import partial
+from calibre import prints
 
 # The class that all interface action plugins must inherit from
 from calibre.gui2.actions import InterfaceAction
+from calibre.gui2.device import device_signals
 from calibre_plugins.SaveVirtualLibrariesToColumnGUI.main import SaveVirtualLibrariesToColumnGUIDialog
-from PyQt5.Qt import QAction, QMenu
+from calibre_plugins.SaveVirtualLibrariesToColumnGUI.config import get_prefs, run_on_disconnect_pref
 from calibre_plugins.SaveVirtualLibrariesToColumnGUI.common_utils import set_plugin_icon_resources, get_icon
+from PyQt5.Qt import QAction, QMenu
 
 # The icon came from http://www.iconarchive.com/show/my-seven-icons-by-itzikgur/Books-1-icon.html
 # Freeware license
@@ -50,7 +53,15 @@ class SaveVirtualLibrariesToColumnGUI(InterfaceAction):
 		self.qaction.setMenu(self.menu)
 		self.qaction.setIcon(get_icon(self.icon_name))
 		self.dialog = None
+		device_signals.device_connection_changed.connect(self.device_connection_changed)
 
+	def device_connection_changed(self, is_connected):
+		prints('SaveVirtualLibrariesToColumnGUI', 'device connected', is_connected)
+		if not is_connected:
+			p = get_prefs()
+			if p.get(run_on_disconnect_pref, False):
+				self.dialog = SaveVirtualLibrariesToColumnGUIDialog(self.gui, get_icon(self.icon_name), self.config)
+				self.dialog.run_it(self.dialog.gui, False)
 
     def show_dialog(self):
         self.dialog = SaveVirtualLibrariesToColumnGUIDialog(self.gui, get_icon(self.icon_name), self.config)		
@@ -58,7 +69,7 @@ class SaveVirtualLibrariesToColumnGUI(InterfaceAction):
 		
     def run_it(self):
         self.dialog = SaveVirtualLibrariesToColumnGUIDialog(self.gui, get_icon(self.icon_name), self.config)
-        self.dialog.run_it(self.dialog.gui)
+        self.dialog.run_it(self.dialog.gui, True)
 
 	def config(self):
 		self.interface_action_base_plugin.do_user_config()

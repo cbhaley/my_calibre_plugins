@@ -11,6 +11,7 @@ from functools import partial
 
 from PyQt5.Qt import QDialog, QVBoxLayout, QPushButton, QMessageBox, QLabel
 
+from calibre import prints
 from calibre_plugins.SaveVirtualLibrariesToColumnGUI.config import namespace, column_name_pref, get_prefs
 
 class SaveVirtualLibrariesToColumnGUIDialog(QDialog):
@@ -41,7 +42,7 @@ class SaveVirtualLibrariesToColumnGUIDialog(QDialog):
 
         self.resize(self.sizeHint())
 		
-	def run_it(self, parent):
+	def run_it(self, parent, show_status_dialog):
 		from calibre.utils.date import now
 		from calibre.gui2 import error_dialog, info_dialog
 		
@@ -63,10 +64,11 @@ class SaveVirtualLibrariesToColumnGUIDialog(QDialog):
 				if set(current[s]) == set(ans[s]):
 					del ans[s]
 			db.set_field(column_key, ans)
-			info_dialog(parent, self.name, 
-				'Updated column {0} for {1} books in {2}'.format(column_key, 
-						len(ans), now() - start_time),
-				show=True)
+			msg = 'Updated column {0} for {1} books in {2}'.format(column_key, 
+						len(ans), now() - start_time)
+			if show_status_dialog:
+				info_dialog(parent, self.name, msg,	show=True)
+			prints('SaveVirtualLibrariesToColumnGUI', msg)
 		else:
 			error_dialog(parent, self.name, 'No lookup key has been provided', show=True)
 			
