@@ -26,50 +26,50 @@ class SaveVirtualLibrariesToColumnGUI(InterfaceAction):
     name = 'Save Book VLs To Column'
 
     action_spec = (name, None, 'Run Save Book VLs To Column', (()))
-	
-	icon_name = 'images/icon.png'
+    
+    icon_name = 'images/icon.png'
 
     def genesis(self):
-		# Read the plugin icons and store for potential sharing with the config widget
+        # Read the plugin icons and store for potential sharing with the config widget
         icon_resources = self.load_resources(self.icon_name)
         set_plugin_icon_resources(self.name, icon_resources)
-	
+    
         self.qaction.triggered.connect(self.show_dialog)
-		
-		self.menu = QMenu(self.gui)
-		
-		self.config_action = self.menu.addAction("Configure")
-		self.config_action.triggered.connect(self.config)		
-		
-		self.run_action = self.menu.addAction("Run")
+        
+        self.menu = QMenu(self.gui)
+        
+        self.config_action = self.menu.addAction("Configure")
+        self.config_action.triggered.connect(self.config)       
+        
+        self.run_action = self.menu.addAction("Run")
         self.gui.addAction(self.run_action)
         self.gui.keyboard.register_shortcut('Run Save Book VLs To Column', 
-					 _('Run Save Book VLs To Column'),
+                     _('Run Save Book VLs To Column'),
                      description=_('Run Save Book VLs To Column'),
                      action=self.run_action,
                      group=self.action_spec[0])
-		self.run_action.triggered.connect(self.run_it)
-		
-		self.qaction.setMenu(self.menu)
-		self.qaction.setIcon(get_icon(self.icon_name))
-		self.dialog = None
-		device_signals.device_connection_changed.connect(self.device_connection_changed)
+        self.run_action.triggered.connect(self.run_it)
+        
+        self.qaction.setMenu(self.menu)
+        self.qaction.setIcon(get_icon(self.icon_name))
+        self.dialog = None
+        device_signals.device_connection_changed.connect(self.device_connection_changed)
 
-	def device_connection_changed(self, is_connected):
-		prints('SaveVirtualLibrariesToColumnGUI', 'device connected', is_connected)
-		if not is_connected:
-			p = get_prefs()
-			if p.get(run_on_disconnect_pref, False):
-				self.dialog = SaveVirtualLibrariesToColumnGUIDialog(self.gui, get_icon(self.icon_name), self.config)
-				self.dialog.run_it(self.dialog.gui, False)
+    def device_connection_changed(self, is_connected):
+        prints('SaveVirtualLibrariesToColumnGUI', 'device connected', is_connected)
+        if not is_connected:
+            p = get_prefs()
+            if p.get(run_on_disconnect_pref, False):
+                self.dialog = SaveVirtualLibrariesToColumnGUIDialog(self.gui, get_icon(self.icon_name), self.config)
+                self.dialog.run_it(self.dialog.gui, False)
 
     def show_dialog(self):
-        self.dialog = SaveVirtualLibrariesToColumnGUIDialog(self.gui, get_icon(self.icon_name), self.config)		
+        self.dialog = SaveVirtualLibrariesToColumnGUIDialog(self.gui, get_icon(self.icon_name), self.config)        
         self.dialog.show()
-		
+        
     def run_it(self):
         self.dialog = SaveVirtualLibrariesToColumnGUIDialog(self.gui, get_icon(self.icon_name), self.config)
         self.dialog.run_it(self.dialog.gui, True)
 
-	def config(self):
-		self.interface_action_base_plugin.do_user_config()
+    def config(self):
+        self.interface_action_base_plugin.do_user_config()

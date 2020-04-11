@@ -20,7 +20,7 @@ class SaveCompositeCustomColumns(LibraryClosedPlugin):
 	library_key_prefix = 'processLib-'
 	
 	def is_customizable(self):
-        return True
+		return True
 	
 	def config_widget(self):
 		from PyQt5.Qt import QCheckBox
@@ -68,7 +68,7 @@ class SaveCompositeCustomColumns(LibraryClosedPlugin):
 				for id_ in all_ids:
 					mi = db.get_proxy_metadata(id_)
 					composites_for_book = dict()
-					composites_for_book['last_modified'] = unicode(mi.get('last_modified'))
+					composites_for_book['last_modified'] = mi.get('last_modified')
 					for key in composites:
 						val = mi.get(key)
 						composites_for_book[key] = val

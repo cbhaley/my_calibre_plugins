@@ -21,7 +21,7 @@ class SaveVirtualLibrariesToColumnGUI(InterfaceActionBase):
     '''
     name                = 'Save Virtual Libraries To Column GUI'
     description         = ('For each book in the library, compute the list of virtual libraries '
-							'containing that book then save that list to a custom column')
+                            'containing that book then save that list to a custom column')
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Charles Haley'
     version             = (2, 2, 1)

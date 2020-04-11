@@ -27,9 +27,9 @@ class SaveVirtualLibrariesToColumnGUIDialog(QDialog):
         self.l = QVBoxLayout()
         self.setLayout(self.l)
 
-		self.name = 'Save Book VLs To Column'
+        self.name = 'Save Book VLs To Column'
         self.setWindowTitle(self.name)
-		self.setWindowIcon(icon)
+        self.setWindowIcon(icon)
 
         self.run_it_button = QPushButton('Run it', self)
         self.run_it_button.clicked.connect(partial(self.run_it, self))
@@ -41,37 +41,37 @@ class SaveVirtualLibrariesToColumnGUIDialog(QDialog):
         self.l.addWidget(self.conf_button)
 
         self.resize(self.sizeHint())
-		
-	def run_it(self, parent, show_status_dialog):
-		from calibre.utils.date import now
-		from calibre.gui2 import error_dialog, info_dialog
-		
-		start_time = now()
+        
+    def run_it(self, parent, show_status_dialog):
+        from calibre.utils.date import now
+        from calibre.gui2 import error_dialog, info_dialog
+        
+        start_time = now()
 
-		db = self.db
-		column_key = get_prefs().get(column_name_pref, '')
-		
-		if column_key:
-			libraries = db._pref('virtual_libraries', {})
-			all_ids = db.all_book_ids()
-			current = db.all_field_for(column_key, all_ids)
-			ans = dict(map(lambda x: (x, set()), all_ids))
-			for lib, expr in libraries.iteritems():
-				books = db.search(expr)
-				for book in books:
-					ans[book].add(lib)
-			for s in current.iterkeys():
-				if set(current[s]) == set(ans[s]):
-					del ans[s]
-			db.set_field(column_key, ans)
-			msg = 'Updated column {0} for {1} books in {2}'.format(column_key, 
-						len(ans), now() - start_time)
-			if show_status_dialog:
-				info_dialog(parent, self.name, msg,	show=True)
-			prints('SaveVirtualLibrariesToColumnGUI', msg)
-		else:
-			error_dialog(parent, self.name, 'No lookup key has been provided', show=True)
-			
+        db = self.db
+        column_key = get_prefs().get(column_name_pref, '')
+        
+        if column_key:
+            libraries = db._pref('virtual_libraries', {})
+            all_ids = db.all_book_ids()
+            current = db.all_field_for(column_key, all_ids)
+            ans = dict(map(lambda x: (x, set()), all_ids))
+            for lib, expr in libraries.items():
+                books = db.search(expr)
+                for book in books:
+                    ans[book].add(lib)
+            for s in current.keys():
+                if set(current[s]) == set(ans[s]):
+                    del ans[s]
+            db.set_field(column_key, ans)
+            msg = 'Updated column {0} for {1} books in {2}'.format(column_key, 
+                        len(ans), now() - start_time)
+            if show_status_dialog:
+                info_dialog(parent, self.name, msg, show=True)
+            prints('SaveVirtualLibrariesToColumnGUI', msg)
+        else:
+            error_dialog(parent, self.name, 'No lookup key has been provided', show=True)
+            
     def config(self):
         self.do_user_config()
 
