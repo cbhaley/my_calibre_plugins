@@ -26,7 +26,7 @@ class SaveVirtualLibrariesToColumn(LibraryClosedPlugin):
     description = 'Save the names of the virtual libraries containing a book in a tags-like custom column'
     author = 'Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    version = (2, 0, 0)
+    version = (2, 0, 1)
     minimum_calibre_version = (2, 54, 0)
     
 

@@ -14,7 +14,7 @@ class SaveCompositeCustomColumns(LibraryClosedPlugin):
 	description = 'Store values of columns "built from other columns" for use by apps that read the calibre database, for example Calibre Companion'
 	author = 'Charles Haley'
 	supported_platforms = ['windows', 'osx', 'linux']
-	version = (1, 1, 0)
+	version = (1, 1, 1)
 	
 	namespace = 'CompositeColumnValues'
 	library_key_prefix = 'processLib-'
