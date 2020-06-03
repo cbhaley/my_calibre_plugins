@@ -9,11 +9,7 @@ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import traceback, os, posixpath, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error, re
-try:
-	from cgi import escape as esc
-except:
-	from html import escape as esc
-
+from cgi import escape as esc
 from lxml import etree
 from six.moves.urllib.parse import unquote as urlunquote
 

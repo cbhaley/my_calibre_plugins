@@ -8,10 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import struct
-try:
-	from cStringIO import StringIO
-except:
-	from io import StringIO
+from cStringIO import StringIO
 
 from calibre.ebooks.metadata.mobi import MetadataUpdater
 from calibre.ebooks.mobi import MobiError
