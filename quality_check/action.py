@@ -2,8 +2,6 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import six
-
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
@@ -79,7 +77,7 @@ class QualityCheckAction(InterfaceAction):
         last_sub_menu = None
         last_group = 0
         parent_menu = m
-        for key, menu_config in six.iteritems(cfg.PLUGIN_MENUS):
+        for key, menu_config in cfg.PLUGIN_MENUS.items():
             if key in hidden_menus:
                 continue
             sub_menu = menu_config['sub_menu']
@@ -104,7 +102,7 @@ class QualityCheckAction(InterfaceAction):
 
         last_group = 0
         parent_menu = m.addMenu('Fix')
-        for key, menu_config in six.iteritems(cfg.PLUGIN_FIX_MENUS):
+        for key, menu_config in cfg.PLUGIN_FIX_MENUS.items():
             group = menu_config['group']
             if group != last_group:
                 parent_menu.addSeparator()
@@ -191,7 +189,7 @@ class QualityCheckAction(InterfaceAction):
         check.perform_check(menu_key)
 
     def _get_last_action_description(self):
-        for key, menu_config in six.iteritems(cfg.PLUGIN_MENUS):
+        for key, menu_config in cfg.PLUGIN_MENUS.items():
             if key == self.last_menu_key and menu_config['cat'] == self.last_menu_cat:
                 return 'Repeat last action: ' + menu_config['name']
         return 'Repeat the last Quality Check menu action performed'
@@ -238,7 +236,7 @@ class QualityCheckAction(InterfaceAction):
             HELP_FILE = 'Quality Check Help.htm'
             file_path = os.path.join(config_dir, 'plugins', HELP_FILE)
             file_data = self.load_resources(HELP_FILE)[HELP_FILE]
-            with open(file_path,'w') as f:
+            with open(file_path,'wb') as f:
                 f.write(file_data)
             return file_path
         url = 'file:///' + get_help_file_resource()

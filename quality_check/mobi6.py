@@ -8,7 +8,7 @@ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
 import struct
-from cStringIO import StringIO
+from io import BytesIO
 
 from calibre.ebooks.metadata.mobi import MetadataUpdater
 from calibre.ebooks.mobi import MobiError
@@ -79,15 +79,15 @@ class MinimalMobiReader(object):
         self.stream = stream
 
         raw = stream.read()
-        if raw.startswith('TPZ'):
+        if raw.startswith(b'TPZ'):
             raise TopazError(_('This is an Amazon Topaz book. It cannot be processed.'))
 
         self.header   = raw[0:72]
-        self.name     = self.header[:32].replace('\x00', '')
+        self.name     = self.header[:32].replace(b'\x00', b'')
         self.num_sections, = struct.unpack('>H', raw[76:78])
 
         self.ident = self.header[0x3C:0x3C + 8].upper()
-        if self.ident not in ['BOOKMOBI', 'TEXTREAD']:
+        if self.ident not in [b'BOOKMOBI', b'TEXTREAD']:
             raise MobiError('Unknown book type: %s' % repr(self.ident))
 
         self.sections = []
@@ -127,7 +127,7 @@ class MinimalMobiUpdater(MetadataUpdater):
             if rec[0] in self.original_exth_records:
                 self.original_exth_records.pop(rec[0])
 
-        if self.type != "BOOKMOBI":
+        if self.type != b"BOOKMOBI":
                 raise MobiError("Setting ASIN only supported for MOBI files of type 'BOOK'.\n"
                                 "\tThis is a '%s' file of type '%s'" % (self.type[0:4], self.type[4:8]))
         recs = []
@@ -138,19 +138,19 @@ class MinimalMobiUpdater(MetadataUpdater):
             update_exth_record((501, cdetype))
 
         # Include remaining original EXTH fields
-        for id in sorted(self.original_exth_records):
-            recs.append((id, self.original_exth_records[id]))
+        for id_ in sorted(self.original_exth_records):
+            recs.append((id_, self.original_exth_records[id_]))
         recs = sorted(recs, key=lambda x:(x[0],x[0]))
 
-        exth = StringIO()
+        exth = BytesIO()
         for code, data in recs:
-            exth.write(struct.pack('>II', code, len(data) + 8))
+            exth.write(struct.pack('>II', int(code), len(data) + 8))
             exth.write(data)
         exth = exth.getvalue()
         trail = len(exth) % 4
-        pad = '\0' * (4 - trail) # Always pad w/ at least 1 byte
-        exth = ['EXTH', struct.pack('>II', len(exth) + 12, len(recs)), exth, pad]
-        exth = ''.join(exth)
+        pad = b'\0' * (4 - trail) # Always pad w/ at least 1 byte
+        exth = [b'EXTH', struct.pack(b'>II', len(exth) + 12, len(recs)), exth, pad]
+        exth = b''.join(exth)
 
         if getattr(self, 'exth', None) is None:
             raise MobiError('No existing EXTH record. Cannot update ASIN.')

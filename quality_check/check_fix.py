@@ -2,8 +2,6 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
-import six
-
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
@@ -306,13 +304,13 @@ class FixCheck(BaseCheck):
         def get_asin(book_id):
             identifiers = db.get_identifiers(book_id, index_is_id=True)
             if identifiers is not None:
-                for key, val in six.iteritems(identifiers):
+                for key, val in identifiers.items():
                     if key.lower() in ['asin','mobi-asin']:
                         return 'ASIN identifier found', val
-                for key, val in six.iteritems(identifiers):
+                for key, val in identifiers.items():
                     if key.lower() == 'amazon':
                         return 'Amazon.com identifier found', val
-                for key, val in six.iteritems(identifiers):
+                for key, val in identifiers.items():
                     if key.lower().startswith('amazon_'):
                         return key+' identifier found', val
             # No amazon id present, so use value off the book

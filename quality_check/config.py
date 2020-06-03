@@ -237,7 +237,7 @@ class VisibleMenuListWidget(QListWidget):
     def populate(self):
         self.clear()
         hidden_prefs = plugin_prefs[STORE_OPTIONS].get(KEY_HIDDEN_MENUS, [])
-        for key, value in six.iteritems(PLUGIN_MENUS):
+        for key, value in PLUGIN_MENUS.items():
             name = value['name']
             sub_menu = value['sub_menu']
             if sub_menu:

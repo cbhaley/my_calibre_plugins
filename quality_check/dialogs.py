@@ -29,7 +29,7 @@ from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.dialogs.message_box import MessageBox
 
 import calibre_plugins.quality_check.config as cfg
-from calibre_plugins.quality_check.common_utils import (SizePersistedDialog, ImageTitleLayout, convert_qvariant, 
+from calibre_plugins.quality_check.common_utils import (SizePersistedDialog, ImageTitleLayout, convert_qvariant,
                                                         ReadOnlyTableWidgetItem, get_icon)
 
 
@@ -270,7 +270,7 @@ class ExcludableMenusComboBox(QComboBox):
         self.menu_keys = []
         idx = -1
         hidden_menus = cfg.plugin_prefs[cfg.STORE_OPTIONS].get(cfg.KEY_HIDDEN_MENUS, [])
-        for menu_key, value in six.iteritems(cfg.PLUGIN_MENUS):
+        for menu_key, value in cfg.PLUGIN_MENUS.items():
             if not value['excludable']:
                 continue
             # Will also exclude menus that the user is not showing
@@ -601,7 +601,7 @@ class SearchEpubDialog(SizePersistedDialog):
         search_opts['scope_ncx'] = self.scope_ncx_checkbox.isChecked()
         search_opts['scope_zip'] = self.scope_zip_checkbox.isChecked()
         any_scope_checked = False
-        for k,v in six.iteritems(search_opts):
+        for k,v in search_opts.items():
             if k.startswith('scope') and v:
                 any_scope_checked = True
                 break

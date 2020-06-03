@@ -2,14 +2,17 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (division, absolute_import,
                         print_function)
-import six
-
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
+from polyglot.builtins import unicode_type, is_py3
 import traceback, os, posixpath, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error, re
-from cgi import escape as esc
+try:
+    from cgi import escape as esc
+except:
+    from html import escape as esc
+
 from lxml import etree
 from six.moves.urllib.parse import unquote as urlunquote
 
@@ -174,6 +177,11 @@ class EpubCheck(BaseCheck):
                                 _('Unknown menu key for %s of \'%s\'')%('EpubCheck', menu_key),
                                 show=True, show_copy_button=False)
 
+    def zf_read(self, zf, name):
+        data = zf.read(name)
+        if is_py3:
+            return data.decode('utf-8', errors='replace')
+        return data
 
     def search_epub(self):
         '''
@@ -288,7 +296,7 @@ class EpubCheck(BaseCheck):
                 with ZipFile(path_to_book, 'r') as zf:
                     for resource_name in self._manifest_worthy_names(zf):
                         if 'jacket' in resource_name and resource_name.endswith('.xhtml'):
-                            html = zf.read(resource_name)
+                            html = zf.read(resource_name).decode('utf-8')
                             if not check_legacy_only and self._is_current_jacket(html):
                                 return check_has_jacket
                             if self._is_legacy_jacket(html):
@@ -329,7 +337,7 @@ class EpubCheck(BaseCheck):
                 with ZipFile(path_to_book, 'r') as zf:
                     for resource_name in self._manifest_worthy_names(zf):
                         if 'jacket' in resource_name and resource_name.endswith('.xhtml'):
-                            html = zf.read(resource_name)
+                            html = self.zf_read(zf, resource_name)
                             if self._is_current_jacket(html) or \
                                self._is_legacy_jacket(html):
                                 jacket_count += 1
@@ -379,13 +387,13 @@ class EpubCheck(BaseCheck):
                     if opf_name:
                         for mt in TEMPLATE_MIME_TYPES:
                             xpgt_name = self._get_opf_item(zf, opf_name,
-                                    xpath=r'child::opf:manifest/opf:item'
-                                           '[@media-type="%s"]'%mt)
+                                    xpath=unicode_type(r'child::opf:manifest/opf:item'
+                                           '[@media-type="%s"]')%mt)
                             if xpgt_name:
                                 if not displayed_path:
                                     displayed_path = True
                                     self.log('<b>%s</b>'%get_title_authors_text(db, book_id))
-                                xpgt_content = zf.read(xpgt_name)
+                                xpgt_content = self.zf_read(zf, xpgt_name)
                                 if 'margin' in xpgt_content:
                                     self.log('\t<span style="color:darkgray">Margins still present in: %s</span>'%xpgt_name)
                                     return True
@@ -433,14 +441,14 @@ class EpubCheck(BaseCheck):
                     for resource_name in contents:
                         extension = resource_name[resource_name.rfind('.'):].lower()
                         if extension in CSS_FILES:
-                            data = zf.read(resource_name).lower()
+                            data = self.zf_read(zf, resource_name).lower()
                             self.log('Checking css import', resource_name)
                             if check_for_import_xpgt(data):
                                 return True
                         elif extension in NON_HTML_FILES:
                             continue
                         else:
-                            data = zf.read(resource_name).lower()
+                            data = self.zf_read(zf, resource_name).lower()
                             if RE_LINK.search(data):
                                 return True
                             self.log('Checking html import', resource_name)
@@ -551,7 +559,7 @@ class EpubCheck(BaseCheck):
 
                     if css_regexes and html_resource_names:
                         for resource_name in html_resource_names:
-                            data = zf.read(resource_name).lower()
+                            data = self.zf_read(zf, resource_name).lower()
                             css_keys = list(css_regexes.keys())
                             for css_key in css_keys:
                                 regexes = css_regexes[css_key]
@@ -620,7 +628,7 @@ class EpubCheck(BaseCheck):
 
                     if image_regexes and html_resource_names:
                         for resource_name in html_resource_names:
-                            data = zf.read(resource_name).lower()
+                            data = self.zf_read(zf, resource_name).lower()
                             image_keys = list(image_regexes.keys())
                             for image_key in image_keys:
                                 regexes = image_regexes[image_key]
@@ -688,7 +696,7 @@ class EpubCheck(BaseCheck):
                     found_broken = False
                     if html_resource_names:
                         for resource_name in html_resource_names:
-                            raw_data = zf.read(resource_name)
+                            raw_data = self.zf_read(zf, resource_name)
                             data = raw_data.lower()
                             html_dir = os.path.dirname(resource_name).lower()
                             if html_dir:
@@ -847,7 +855,7 @@ class EpubCheck(BaseCheck):
                                     xpath=r'child::opf:guide/opf:reference'
                                            '[@type="cover"and @href]')
                         if cover_name and cover_name.endswith('.xhtml'):
-                            html = zf.read(cover_name)
+                            html = self.zf_read(zf, cover_name)
                             data = self._parse_xhtml(html, cover_name)
                             metas = XPath('//h:meta[@content="true" and @name="calibre:cover"]')(data)
                             if len(metas):
@@ -894,7 +902,7 @@ class EpubCheck(BaseCheck):
                                     xpath=r'child::opf:guide/opf:reference'
                                            '[@type="cover"and @href]')
                         if cover_name and cover_name.endswith('.xhtml'):
-                            html = zf.read(cover_name)
+                            html = self.zf_read(zf, cover_name)
                             if html.find('<meta content="true" name="calibre:cover"') != -1 or \
                                html.find('<meta name="calibre:cover" content="true"') != -1:
                                 return check_has_cover
@@ -930,7 +938,7 @@ class EpubCheck(BaseCheck):
                 with ZipFile(path_to_book, 'r') as zf:
                     opf_name = self._get_opf_xml(path_to_book, zf)
                     if opf_name:
-                        opf_xml = zf.read(opf_name)
+                        opf_xml = self.zf_read(zf, opf_name)
                         if opf_xml.find('name="calibre:timestamp"') != -1 or \
                            opf_xml.find('<dc:contributor opf:role="bkp">calibre ') != -1:
                             return check_converted
@@ -997,14 +1005,14 @@ class EpubCheck(BaseCheck):
                         self.log.info(path_to_book)
                         self.log.error('\tMissing container.xml file in', path_to_book)
                         return True
-                    data = zf.read('META-INF/container.xml')
+                    data = self.zf_read(zf, 'META-INF/container.xml')
                     if OCF_NS not in data:
                         self.log.info(path_to_book)
                         self.log.error('\tIncorrect container.xml namespace in', path_to_book)
                         return True
                     opf_name = self._get_opf_xml(path_to_book, zf)
                     if opf_name:
-                        data = zf.read(opf_name)
+                        data = self.zf_read(zf, opf_name)
                         if OPF_NS not in data:
                             self.log.info(path_to_book)
                             self.log.error('\tIncorrect .opf manifest namespace in', path_to_book)
@@ -1115,7 +1123,7 @@ class EpubCheck(BaseCheck):
                     for name in self._manifest_worthy_names(zf):
                         if name.endswith('.ncx'):
                             try:
-                                ncx = self._parse_xml(zf.read(name))
+                                ncx = self._parse_xml(self.zf_read(zf, name))
                                 nested = ncx.xpath(r'descendant::ncx:navPoint/ncx:navPoint',
                                                    namespaces={'ncx':NCX_NS})
                                 if len(nested) > 0:
@@ -1156,7 +1164,7 @@ class EpubCheck(BaseCheck):
                     for name in self._manifest_worthy_names(zf):
                         if name.endswith('.ncx'):
                             try:
-                                ncx_xml = zf.read(name)
+                                ncx_xml = self.zf_read(zf, name)
                                 count = len(ncx_xml.split('<navLabel>')) - 1
                                 break
                             except UnicodeDecodeError:
@@ -1208,7 +1216,7 @@ class EpubCheck(BaseCheck):
                             if ncx_dir:
                                 ncx_dir += '/'
                             try:
-                                ncx = self._parse_xml(zf.read(name))
+                                ncx = self._parse_xml(self.zf_read(zf, name))
                                 src_nodes = ncx.xpath(r'descendant::ncx:content/@src',
                                                    namespaces={'ncx':NCX_NS})
                                 for src_node in src_nodes:
@@ -1365,7 +1373,7 @@ class EpubCheck(BaseCheck):
                         if extension in NON_HTML_FILES:
                             continue
                         else:
-                            data = zf.read(resource_name).lower()
+                            data = self.zf_read(zf, resource_name).lower()
                             if RE_DRM_META.search(data):
                                 return True
                     return False
@@ -1399,7 +1407,7 @@ class EpubCheck(BaseCheck):
                         if extension in NON_HTML_FILES:
                             continue
                         else:
-                            data = zf.read(resource_name).lower()
+                            data = self.zf_read(zf, resource_name).lower()
                             if RE_ADDRESS.search(data):
                                 return True
                     return False
@@ -1466,13 +1474,13 @@ class EpubCheck(BaseCheck):
                     for resource_name in self._manifest_worthy_names(zf):
                         extension = resource_name[resource_name.rfind('.'):].lower()
                         if extension in CSS_FILES:
-                            css = zf.read(resource_name).lower()
+                            css = self.zf_read(zf, resource_name).lower()
                             if RE_FONT_FACE.search(css):
                                 self.log('CSS file contains @font-face: <b>%s</b>'%get_title_authors_text(db, book_id))
                                 self.log('\t<span style="color:darkgray">%s</span>'%resource_name)
                                 return True
                         elif extension not in NON_HTML_FILES:
-                            data = zf.read(resource_name).lower()
+                            data = self.zf_read(zf, resource_name).lower()
                             if RE_FONT_FACE.search(data):
                                 self.log('At least one html file contains @font-face: <b>%s</b>'%get_title_authors_text(db, book_id))
                                 self.log('\t<span style="color:darkgray">%s</span>'%resource_name)
@@ -1505,7 +1513,7 @@ class EpubCheck(BaseCheck):
                 with ZipFile(path_to_book, 'r') as zf:
                     for resource_name in self._manifest_worthy_names(zf):
                         if resource_name.lower().endswith('css'):
-                            css = zf.read(resource_name).lower()
+                            css = self.zf_read(zf, resource_name).lower()
                             if RE_TEXT_ALIGN.search(css):
                                 return False
                 return True
@@ -1564,7 +1572,7 @@ class EpubCheck(BaseCheck):
 
             # If we got to here, then we found "some" margins in the style that are
             # either identical or a subset of our preferred margins
-            for pref, pref_value in six.iteritems(self.user_margins):
+            for pref, pref_value in self.user_margins.items():
                 if pref_value < 0.0:  # The user does not want this margin defined
                     if pref in doc_defined_margins:  # Currently is defined, so remove it
                         self.log('\t\tMargins are defined in pts but don\'t match calibre preferences')
@@ -1592,7 +1600,7 @@ class EpubCheck(BaseCheck):
             from calibre.ebooks.conversion.config import load_defaults
             ps = load_defaults('page_setup')
             # Only interested in the margins out of page setup settings
-            prefs_margins = dict((k,v) for k,v in six.iteritems(ps) if k.startswith('margin_'))
+            prefs_margins = dict((k,v) for k,v in ps.items() if k.startswith('margin_'))
             if 'margin_top' not in prefs_margins:
                 # The user has never changed their page setup defaults to save settings
                 prefs_margins = calibre_default_margins
@@ -1610,7 +1618,7 @@ class EpubCheck(BaseCheck):
                     # Check the CSS files for @page and body declarations
                     for resource_name in contents:
                         if resource_name.lower().endswith('css'):
-                            css = zf.read(resource_name).lower()
+                            css = self.zf_read(zf, resource_name).lower()
                             if RE_BOOK_MGNS.search(css):
                                 return match_margins(css)
                     # Check the xhtml files for inline @page and body declarations
@@ -1621,7 +1629,7 @@ class EpubCheck(BaseCheck):
                         elif resource_name.endswith('titlepage.xhtml'):
                             continue
                         else:
-                            data = zf.read(resource_name).lower()
+                            data = self.zf_read(zf, resource_name).lower()
                             if RE_BOOK_MGNS.search(data[:1000]):
                                 if match_margins(data[:1000], True):
                                     return True
@@ -1653,7 +1661,7 @@ class EpubCheck(BaseCheck):
                     contents = list(self._manifest_worthy_names(zf))
                     for resource_name in contents:
                         if resource_name.lower().endswith('css'):
-                            css = zf.read(resource_name).lower()
+                            css = self.zf_read(zf, resource_name).lower()
                             if RE_BOOK_MGNS.search(css):
                                 return False
                     for resource_name in contents:
@@ -1661,7 +1669,7 @@ class EpubCheck(BaseCheck):
                         if extension in NON_HTML_FILES:
                             continue
                         else:
-                            data = zf.read(resource_name).lower()
+                            data = self.zf_read(zf, resource_name).lower()
                             if RE_BOOK_MGNS.search(data[:1000]):
                                 return False
                     return True
@@ -1699,7 +1707,7 @@ class EpubCheck(BaseCheck):
                         elif resource_name.lower().find('cover') != -1:
                             continue
                         else:
-                            data = zf.read(resource_name).lower()
+                            data = self.zf_read(zf, resource_name).lower()
                             if RE_BOOK_MGNS.search(data[:1000]):
                                 return True
                     return False
@@ -1740,7 +1748,7 @@ class EpubCheck(BaseCheck):
                         elif extension in NON_HTML_FILES:
                             continue
                         else:
-                            data = zf.read(resource_name)
+                            data = self.zf_read(zf, resource_name)
                             if RE_JAVASCRIPT.search(data):
                                 reasons.append('\tContains inline javascript: %s'% resource_name)
                     if reasons:
@@ -1781,7 +1789,7 @@ class EpubCheck(BaseCheck):
                         extension = resource_name[resource_name.rfind('.'):].lower()
                         if extension in NON_HTML_FILES:
                             continue
-                        data = zf.read(resource_name).lower()
+                        data = self.zf_read(zf, resource_name).lower()
                         # Only interested in the body without any html tags
                         body_text = self._extract_body_text(data)
                         if body_text.find('\'') != -1 or body_text.find('"') != -1:
@@ -1852,6 +1860,7 @@ class EpubCheck(BaseCheck):
 
     def _get_opf_tree(self, zf, opf_name):
         data = zf.read(opf_name)
+        data = data.decode('utf-8')
         data = re.sub(r'http://openebook.org/namespaces/oeb-package/1.0/',
                 OPF_NS, data)
         return self._parse_xml(data)
@@ -1882,7 +1891,7 @@ class EpubCheck(BaseCheck):
     def _is_drm_encrypted(self, zf, contents):
         for resource_name in contents:
             if resource_name.lower().endswith('encryption.xml'):
-                root = self._parse_xml(zf.read(resource_name))
+                root = self._parse_xml(self.zf_read(zf, resource_name))
                 for em in root.xpath('descendant::*[contains(name(), "EncryptionMethod")]'):
                     algorithm = em.get('Algorithm', '')
                     if algorithm != 'http://ns.adobe.com/pdf/enc#RC':
@@ -1894,7 +1903,7 @@ class EpubCheck(BaseCheck):
         for name in zf.namelist():
             if name == ENCRYPTION_PATH:
                 try:
-                    return Encryption(zf.read(name))
+                    return Encryption(self.zf_read(zf, name))
                 except:
                     return Encryption(None)
         return Encryption(None)
@@ -1961,4 +1970,3 @@ class EpubCheck(BaseCheck):
             pass
         data, _ = xml_to_unicode(data)
         return fix_data(data)
-
