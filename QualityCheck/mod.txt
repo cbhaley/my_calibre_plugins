@@ -1,0 +1,434 @@
+--- action.py	(original)
++++ action.py	(refactored)
+@@ -2,6 +2,7 @@
+ # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+ from __future__ import (unicode_literals, division, absolute_import,
+                         print_function)
++import six
+ 
+ __license__   = 'GPL v3'
+ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
+@@ -78,7 +79,7 @@
+         last_sub_menu = None
+         last_group = 0
+         parent_menu = m
+-        for key, menu_config in cfg.PLUGIN_MENUS.iteritems():
++        for key, menu_config in six.iteritems(cfg.PLUGIN_MENUS):
+             if key in hidden_menus:
+                 continue
+             sub_menu = menu_config['sub_menu']
+@@ -103,7 +104,7 @@
+ 
+         last_group = 0
+         parent_menu = m.addMenu('Fix')
+-        for key, menu_config in cfg.PLUGIN_FIX_MENUS.iteritems():
++        for key, menu_config in six.iteritems(cfg.PLUGIN_FIX_MENUS):
+             group = menu_config['group']
+             if group != last_group:
+                 parent_menu.addSeparator()
+@@ -190,7 +191,7 @@
+         check.perform_check(menu_key)
+ 
+     def _get_last_action_description(self):
+-        for key, menu_config in cfg.PLUGIN_MENUS.iteritems():
++        for key, menu_config in six.iteritems(cfg.PLUGIN_MENUS):
+             if key == self.last_menu_key and menu_config['cat'] == self.last_menu_cat:
+                 return 'Repeat last action: ' + menu_config['name']
+         return 'Repeat the last Quality Check menu action performed'
+--- check_epub.py	(original)
++++ check_epub.py	(refactored)
+@@ -2,15 +2,16 @@
+ # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+ from __future__ import (division, absolute_import,
+                         print_function)
++import six
+ 
+ __license__   = 'GPL v3'
+ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
+ __docformat__ = 'restructuredtext en'
+ 
+-import traceback, os, posixpath, urllib, re
++import traceback, os, posixpath, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error, re
+ from cgi import escape as esc
+ from lxml import etree
+-from urllib import unquote as urlunquote
++from six.moves.urllib.parse import unquote as urlunquote
+ 
+ from calibre import guess_type
+ from calibre.gui2 import error_dialog
+@@ -536,7 +537,7 @@
+                         if extension in CSS_FILES:
+                             try:
+                                 css = os.path.basename(resource_name).lower()
+-                                css_enc = urllib.pathname2url(css).lower()
++                                css_enc = six.moves.urllib.request.pathname2url(css).lower()
+                             except:
+                                 self.log.error('ERROR parsing book: ', path_to_book)
+                                 self.log.error('\tIssue with CSS name: ', resource_name)
+@@ -605,7 +606,7 @@
+                             # compared to the opf manifest
+                             try:
+                                 image = os.path.basename(resource_name).lower()
+-                                image_enc = urllib.pathname2url(image).lower()
++                                image_enc = six.moves.urllib.request.pathname2url(image).lower()
+                             except:
+                                 self.log.error('ERROR parsing book: ', path_to_book)
+                                 self.log.error('\tIssue with image name: ', resource_name)
+@@ -674,7 +675,7 @@
+                             # Use the base name for the image since relative path might differ from html
+                             # compared to the opf manifest
+                             try:
+-                                image = urllib.url2pathname(resource_name.lower())
++                                image = six.moves.urllib.request.url2pathname(resource_name.lower())
+                             except:
+                                 self.log.error('ERROR parsing book: ', path_to_book)
+                                 self.log.error('\tIssue with image name: ', resource_name)
+@@ -697,7 +698,7 @@
+                             image_tag_matches = RE_IMAGE.findall(data)
+                             for match in img_tag_matches + image_tag_matches:
+                                 rel_path = os.path.normpath(html_dir + match)
+-                                normalised_image_name = urllib.url2pathname(rel_path)
++                                normalised_image_name = six.moves.urllib.request.url2pathname(rel_path)
+                                 if normalised_image_name not in image_map:
+                                     if not found_broken:
+                                         self.log(get_title_authors_text(db, book_id))
+@@ -1199,7 +1200,7 @@
+                         self.log.error('SKIPPING BOOK (DRM Encrypted): ', get_title_authors_text(db, book_id))
+                         return False
+                     manifest_names = list(self._manifest_worthy_names(zf))
+-                    html_names_map = dict((os.path.normpath(urllib.url2pathname(k)),True) for k in manifest_names
++                    html_names_map = dict((os.path.normpath(six.moves.urllib.request.url2pathname(k)),True) for k in manifest_names
+                                           if k[k.rfind('.'):].lower() not in NON_HTML_FILES)
+                     for name in manifest_names:
+                         if name.endswith('.ncx'):
+@@ -1212,7 +1213,7 @@
+                                                    namespaces={'ncx':NCX_NS})
+                                 for src_node in src_nodes:
+                                     link = src_node.partition('#')[0]
+-                                    link_path = os.path.normpath(urllib.url2pathname(ncx_dir + link))
++                                    link_path = os.path.normpath(six.moves.urllib.request.url2pathname(ncx_dir + link))
+                                     #self.log.info('\tLooking for:', link_path)
+                                     if link_path not in html_names_map:
+                                         broken_links.append(link)
+@@ -1563,7 +1564,7 @@
+ 
+             # If we got to here, then we found "some" margins in the style that are
+             # either identical or a subset of our preferred margins
+-            for pref, pref_value in self.user_margins.iteritems():
++            for pref, pref_value in six.iteritems(self.user_margins):
+                 if pref_value < 0.0:  # The user does not want this margin defined
+                     if pref in doc_defined_margins:  # Currently is defined, so remove it
+                         self.log('\t\tMargins are defined in pts but don\'t match calibre preferences')
+@@ -1591,7 +1592,7 @@
+             from calibre.ebooks.conversion.config import load_defaults
+             ps = load_defaults('page_setup')
+             # Only interested in the margins out of page setup settings
+-            prefs_margins = dict((k,v) for k,v in ps.iteritems() if k.startswith('margin_'))
++            prefs_margins = dict((k,v) for k,v in six.iteritems(ps) if k.startswith('margin_'))
+             if 'margin_top' not in prefs_margins:
+                 # The user has never changed their page setup defaults to save settings
+                 prefs_margins = calibre_default_margins
+@@ -1860,7 +1861,7 @@
+         period_index = href.find('.')
+         if hash_index > 0 and hash_index > period_index:
+             href = href.partition('#')[0]
+-        href = urllib.unquote(href)
++        href = six.moves.urllib.parse.unquote(href)
+         name = href
+         if base:
+             name = posixpath.join(base, href)
+@@ -1931,7 +1932,7 @@
+         """Automatically decode :param:`data` into a `unicode` object."""
+         def fix_data(d):
+             return d.replace('\r\n', '\n').replace('\r', '\n')
+-        if isinstance(data, unicode):
++        if isinstance(data, six.text_type):
+             return fix_data(data)
+         bom_enc = None
+         if data[:4] in ('\0\0\xfe\xff', '\xff\xfe\0\0'):
+--- check_fix.py	(original)
++++ check_fix.py	(refactored)
+@@ -2,6 +2,7 @@
+ # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+ from __future__ import (unicode_literals, division, absolute_import,
+                         print_function)
++import six
+ 
+ __license__   = 'GPL v3'
+ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
+@@ -305,13 +306,13 @@
+         def get_asin(book_id):
+             identifiers = db.get_identifiers(book_id, index_is_id=True)
+             if identifiers is not None:
+-                for key, val in identifiers.iteritems():
++                for key, val in six.iteritems(identifiers):
+                     if key.lower() in ['asin','mobi-asin']:
+                         return 'ASIN identifier found', val
+-                for key, val in identifiers.iteritems():
++                for key, val in six.iteritems(identifiers):
+                     if key.lower() == 'amazon':
+                         return 'Amazon.com identifier found', val
+-                for key, val in identifiers.iteritems():
++                for key, val in six.iteritems(identifiers):
+                     if key.lower().startswith('amazon_'):
+                         return key+' identifier found', val
+             # No amazon id present, so use value off the book
+--- check_metadata.py	(original)
++++ check_metadata.py	(refactored)
+@@ -2,6 +2,8 @@
+ # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+ from __future__ import (unicode_literals, division, absolute_import,
+                         print_function)
++from six.moves import map
++from six.moves import range
+ 
+ __license__   = 'GPL v3'
+ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
+@@ -224,7 +226,7 @@
+                                                                   status_msg_type='books for series gaps')
+         result_ids = list()
+         series_gap_count = book_gap_count = 0
+-        for series_name in sorted(series_name_indexes_map.keys(), key=lambda s: s.lower()):
++        for series_name in sorted(list(series_name_indexes_map.keys()), key=lambda s: s.lower()):
+             # Identify whether there are any gaps in this series
+             series_indexes = sorted(series_name_indexes_map[series_name])
+             max_value = max(series_indexes)
+@@ -244,7 +246,7 @@
+             series_indexes = sorted(series_indexes)
+             idx = 0
+             missing_ids = []
+-            for expected_idx in xrange(1,max_value):
++            for expected_idx in range(1,max_value):
+                 if expected_idx != series_indexes[idx]:
+                     missing_ids.append(expected_idx)
+                     book_gap_count += 1
+--- common_utils.py	(original)
++++ common_utils.py	(refactored)
+@@ -2,6 +2,7 @@
+ # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+ from __future__ import (unicode_literals, division, absolute_import,
+                         print_function)
++import six
+ 
+ __license__   = 'GPL v3'
+ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
+@@ -46,7 +47,7 @@
+     def convert_qvariant(x):
+         vt = x.type()
+         if vt == x.String:
+-            return unicode(x.toString())
++            return six.text_type(x.toString())
+         if vt == x.List:
+             return [convert_qvariant(i) for i in x.toList()]
+         return x.toPyObject()
+@@ -417,7 +418,7 @@
+         self.setCurrentIndex(selected_idx)
+ 
+     def selected_value(self):
+-        return unicode(self.currentText())
++        return six.text_type(self.currentText())
+ 
+ 
+ class KeyValueComboBox(QComboBox):
+@@ -430,7 +431,7 @@
+     def populate_combo(self, selected_key):
+         self.clear()
+         selected_idx = idx = -1
+-        for key, value in self.values.iteritems():
++        for key, value in six.iteritems(self.values):
+             idx = idx + 1
+             self.addItem(value)
+             if key == selected_key:
+@@ -438,8 +439,8 @@
+         self.setCurrentIndex(selected_idx)
+ 
+     def selected_key(self):
+-        for key, value in self.values.iteritems():
+-            if value == unicode(self.currentText()).strip():
++        for key, value in six.iteritems(self.values):
++            if value == six.text_type(self.currentText()).strip():
+                 return key
+ 
+ 
+@@ -674,7 +675,7 @@
+     def _populate_settings(self):
+         self.keys_list.clear()
+         ns_prefix = self._get_ns_prefix()
+-        keys = sorted([k[len(ns_prefix):] for k in self.db.prefs.iterkeys()
++        keys = sorted([k[len(ns_prefix):] for k in six.iterkeys(self.db.prefs)
+                        if k.startswith(ns_prefix)])
+         for key in keys:
+             self.keys_list.addItem(key)
+@@ -685,7 +686,7 @@
+         if new_row < 0:
+             self.value_text.clear()
+             return
+-        key = unicode(self.keys_list.currentItem().text())
++        key = six.text_type(self.keys_list.currentItem().text())
+         val = self.db.prefs.get_namespaced(self.namespace, key, '')
+         self.value_text.setPlainText(self.db.prefs.to_raw(val))
+ 
+@@ -701,8 +702,8 @@
+         if not confirm(message, self.namespace+'_clear_settings', self):
+             return
+ 
+-        val = self.db.prefs.raw_to_object(unicode(self.value_text.toPlainText()))
+-        key = unicode(self.keys_list.currentItem().text())
++        val = self.db.prefs.raw_to_object(six.text_type(self.value_text.toPlainText()))
++        key = six.text_type(self.keys_list.currentItem().text())
+         self.db.prefs.set_namespaced(self.namespace, key, val)
+ 
+         restart = prompt_for_restart(self, 'Settings changed',
+@@ -722,7 +723,7 @@
+             return
+ 
+         ns_prefix = self._get_ns_prefix()
+-        keys = [k for k in self.db.prefs.iterkeys() if k.startswith(ns_prefix)]
++        keys = [k for k in six.iterkeys(self.db.prefs) if k.startswith(ns_prefix)]
+         for k in keys:
+             del self.db.prefs[k]
+         self._populate_settings()
+--- config.py	(original)
++++ config.py	(refactored)
+@@ -2,6 +2,8 @@
+ # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+ from __future__ import (unicode_literals, division, absolute_import,
+                         print_function)
++import six
++from six.moves import range
+ 
+ __license__   = 'GPL v3'
+ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
+@@ -235,7 +237,7 @@
+     def populate(self):
+         self.clear()
+         hidden_prefs = plugin_prefs[STORE_OPTIONS].get(KEY_HIDDEN_MENUS, [])
+-        for key, value in PLUGIN_MENUS.iteritems():
++        for key, value in six.iteritems(PLUGIN_MENUS):
+             name = value['name']
+             sub_menu = value['sub_menu']
+             if sub_menu:
+@@ -251,10 +253,10 @@
+ 
+     def get_hidden_menus(self):
+         hidden_menus = []
+-        for x in xrange(self.count()):
++        for x in range(self.count()):
+             item = self.item(x)
+             if item.checkState() == Qt.Unchecked:
+-                key = unicode(convert_qvariant(item.data(Qt.UserRole))).strip()
++                key = six.text_type(convert_qvariant(item.data(Qt.UserRole))).strip()
+                 hidden_menus.append(key)
+         return hidden_menus
+ 
+@@ -328,8 +330,8 @@
+ 
+     def save_settings(self):
+         new_prefs = {}
+-        new_prefs[KEY_MAX_TAGS] = int(unicode(self.max_tags_spin.value()))
+-        exclude_tag_text = unicode(self.exclude_tags.text()).strip()
++        new_prefs[KEY_MAX_TAGS] = int(six.text_type(self.max_tags_spin.value()))
++        exclude_tag_text = six.text_type(self.exclude_tags.text()).strip()
+         if exclude_tag_text.endswith(','):
+             exclude_tag_text = exclude_tag_text[:-1]
+         new_prefs[KEY_MAX_TAG_EXCLUSIONS] = [t.strip() for t in exclude_tag_text.split(',')]
+--- dialogs.py	(original)
++++ dialogs.py	(refactored)
+@@ -2,6 +2,8 @@
+ # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+ from __future__ import (unicode_literals, division, absolute_import,
+                         print_function)
++import six
++from six.moves import range
+ 
+ __license__   = 'GPL v3'
+ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
+@@ -165,9 +167,9 @@
+         else:
+             gprefs[self.unique_pref_name+':last_opt'] = 2
+         gprefs[self.unique_pref_name+':last_size_check_type'] = \
+-                            unicode(self.file_size_check_type.currentText()).strip()
++                            six.text_type(self.file_size_check_type.currentText()).strip()
+         gprefs[self.unique_pref_name+':last_dimensions_check_type'] = \
+-                            unicode(self.dimensions_check_type.currentText()).strip()
++                            six.text_type(self.dimensions_check_type.currentText()).strip()
+         gprefs[self.unique_pref_name+':last_size'] = self.file_size
+         gprefs[self.unique_pref_name+':last_width'] = self.image_width
+         gprefs[self.unique_pref_name+':last_height'] = self.image_height
+@@ -176,21 +178,21 @@
+     @property
+     def check_type(self):
+         if self.opt_file_size.isChecked():
+-            return unicode(self.file_size_check_type.currentText()).strip()
++            return six.text_type(self.file_size_check_type.currentText()).strip()
+         elif self.opt_dimensions.isChecked():
+-            return unicode(self.dimensions_check_type.currentText()).strip()
++            return six.text_type(self.dimensions_check_type.currentText()).strip()
+ 
+     @property
+     def file_size(self):
+-        return int(unicode(self.file_size_spin.value()))
++        return int(six.text_type(self.file_size_spin.value()))
+ 
+     @property
+     def image_width(self):
+-        return int(unicode(self.image_width_spin.value()))
++        return int(six.text_type(self.image_width_spin.value()))
+ 
+     @property
+     def image_height(self):
+-        return int(unicode(self.image_height_spin.value()))
++        return int(six.text_type(self.image_height_spin.value()))
+ 
+ 
+ class ViewLog(QDialog):
+@@ -268,7 +270,7 @@
+         self.menu_keys = []
+         idx = -1
+         hidden_menus = cfg.plugin_prefs[cfg.STORE_OPTIONS].get(cfg.KEY_HIDDEN_MENUS, [])
+-        for menu_key, value in cfg.PLUGIN_MENUS.iteritems():
++        for menu_key, value in six.iteritems(cfg.PLUGIN_MENUS):
+             if not value['excludable']:
+                 continue
+             # Will also exclude menus that the user is not showing
+@@ -581,7 +583,7 @@
+         layout.addWidget(button_box)
+ 
+     def ok_clicked(self):
+-        search_text = unicode(self.search_combo.currentText()).strip()
++        search_text = six.text_type(self.search_combo.currentText()).strip()
+         if not search_text:
+             return error_dialog(self, 'No find text',
+                 _('You must specify a regular expression to search for.'), show=True)
+@@ -599,7 +601,7 @@
+         search_opts['scope_ncx'] = self.scope_ncx_checkbox.isChecked()
+         search_opts['scope_zip'] = self.scope_zip_checkbox.isChecked()
+         any_scope_checked = False
+-        for k,v in search_opts.iteritems():
++        for k,v in six.iteritems(search_opts):
+             if k.startswith('scope') and v:
+                 any_scope_checked = True
+                 break
+--- helpers.py	(original)
++++ helpers.py	(refactored)
+@@ -85,8 +85,8 @@
+     def test(initials_mode, author, expected):
+         result = get_formatted_author_initials(initials_mode, author)
+         if result != expected:
+-            print('%s - (%s) => Expected: %s - Result: %s'%(author, initials_mode,
+-                                                           expected, result))
++            print(('%s - (%s) => Expected: %s - Result: %s'%(author, initials_mode,
++                                                           expected, result)))
+ 
+     # Test some cases independent of the initials mode
+     test('A.B.','Joe Bloggs','Joe Bloggs')
+--- mobi6.py	(original)
++++ mobi6.py	(refactored)
+@@ -1,6 +1,7 @@
+ #!/usr/bin/env python
+ # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
+ from __future__ import (absolute_import, print_function)
++from six.moves import range
+ 
+ __license__   = 'GPL v3'
+ __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
