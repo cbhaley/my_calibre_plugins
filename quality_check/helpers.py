@@ -85,8 +85,8 @@ if __name__ == '__main__':
     def test(initials_mode, author, expected):
         result = get_formatted_author_initials(initials_mode, author)
         if result != expected:
-            print('%s - (%s) => Expected: %s - Result: %s'%(author, initials_mode,
-                                                           expected, result))
+            print(('%s - (%s) => Expected: %s - Result: %s'%(author, initials_mode,
+                                                           expected, result)))
 
     # Test some cases independent of the initials mode
     test('A.B.','Joe Bloggs','Joe Bloggs')

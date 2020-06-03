@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -165,9 +167,9 @@ class CoverOptionsDialog(SizePersistedDialog):
         else:
             gprefs[self.unique_pref_name+':last_opt'] = 2
         gprefs[self.unique_pref_name+':last_size_check_type'] = \
-                            unicode(self.file_size_check_type.currentText()).strip()
+                            six.text_type(self.file_size_check_type.currentText()).strip()
         gprefs[self.unique_pref_name+':last_dimensions_check_type'] = \
-                            unicode(self.dimensions_check_type.currentText()).strip()
+                            six.text_type(self.dimensions_check_type.currentText()).strip()
         gprefs[self.unique_pref_name+':last_size'] = self.file_size
         gprefs[self.unique_pref_name+':last_width'] = self.image_width
         gprefs[self.unique_pref_name+':last_height'] = self.image_height
@@ -176,21 +178,21 @@ class CoverOptionsDialog(SizePersistedDialog):
     @property
     def check_type(self):
         if self.opt_file_size.isChecked():
-            return unicode(self.file_size_check_type.currentText()).strip()
+            return six.text_type(self.file_size_check_type.currentText()).strip()
         elif self.opt_dimensions.isChecked():
-            return unicode(self.dimensions_check_type.currentText()).strip()
+            return six.text_type(self.dimensions_check_type.currentText()).strip()
 
     @property
     def file_size(self):
-        return int(unicode(self.file_size_spin.value()))
+        return int(six.text_type(self.file_size_spin.value()))
 
     @property
     def image_width(self):
-        return int(unicode(self.image_width_spin.value()))
+        return int(six.text_type(self.image_width_spin.value()))
 
     @property
     def image_height(self):
-        return int(unicode(self.image_height_spin.value()))
+        return int(six.text_type(self.image_height_spin.value()))
 
 
 class ViewLog(QDialog):
@@ -268,7 +270,7 @@ class ExcludableMenusComboBox(QComboBox):
         self.menu_keys = []
         idx = -1
         hidden_menus = cfg.plugin_prefs[cfg.STORE_OPTIONS].get(cfg.KEY_HIDDEN_MENUS, [])
-        for menu_key, value in cfg.PLUGIN_MENUS.iteritems():
+        for menu_key, value in six.iteritems(cfg.PLUGIN_MENUS):
             if not value['excludable']:
                 continue
             # Will also exclude menus that the user is not showing
@@ -581,7 +583,7 @@ class SearchEpubDialog(SizePersistedDialog):
         layout.addWidget(button_box)
 
     def ok_clicked(self):
-        search_text = unicode(self.search_combo.currentText()).strip()
+        search_text = six.text_type(self.search_combo.currentText()).strip()
         if not search_text:
             return error_dialog(self, 'No find text',
                 _('You must specify a regular expression to search for.'), show=True)
@@ -599,7 +601,7 @@ class SearchEpubDialog(SizePersistedDialog):
         search_opts['scope_ncx'] = self.scope_ncx_checkbox.isChecked()
         search_opts['scope_zip'] = self.scope_zip_checkbox.isChecked()
         any_scope_checked = False
-        for k,v in search_opts.iteritems():
+        for k,v in six.iteritems(search_opts):
             if k.startswith('scope') and v:
                 any_scope_checked = True
                 break

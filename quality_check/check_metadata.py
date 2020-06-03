@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+from six.moves import map
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -224,7 +226,7 @@ class MetadataCheck(BaseCheck):
                                                                   status_msg_type='books for series gaps')
         result_ids = list()
         series_gap_count = book_gap_count = 0
-        for series_name in sorted(series_name_indexes_map.keys(), key=lambda s: s.lower()):
+        for series_name in sorted(list(series_name_indexes_map.keys()), key=lambda s: s.lower()):
             # Identify whether there are any gaps in this series
             series_indexes = sorted(series_name_indexes_map[series_name])
             max_value = max(series_indexes)
@@ -244,7 +246,7 @@ class MetadataCheck(BaseCheck):
             series_indexes = sorted(series_indexes)
             idx = 0
             missing_ids = []
-            for expected_idx in xrange(1,max_value):
+            for expected_idx in range(1,max_value):
                 if expected_idx != series_indexes[idx]:
                     missing_ids.append(expected_idx)
                     book_gap_count += 1

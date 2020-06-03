@@ -2,6 +2,8 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -235,7 +237,7 @@ class VisibleMenuListWidget(QListWidget):
     def populate(self):
         self.clear()
         hidden_prefs = plugin_prefs[STORE_OPTIONS].get(KEY_HIDDEN_MENUS, [])
-        for key, value in PLUGIN_MENUS.iteritems():
+        for key, value in six.iteritems(PLUGIN_MENUS):
             name = value['name']
             sub_menu = value['sub_menu']
             if sub_menu:
@@ -251,10 +253,10 @@ class VisibleMenuListWidget(QListWidget):
 
     def get_hidden_menus(self):
         hidden_menus = []
-        for x in xrange(self.count()):
+        for x in range(self.count()):
             item = self.item(x)
             if item.checkState() == Qt.Unchecked:
-                key = unicode(convert_qvariant(item.data(Qt.UserRole))).strip()
+                key = six.text_type(convert_qvariant(item.data(Qt.UserRole))).strip()
                 hidden_menus.append(key)
         return hidden_menus
 
@@ -328,8 +330,8 @@ class ConfigWidget(QWidget):
 
     def save_settings(self):
         new_prefs = {}
-        new_prefs[KEY_MAX_TAGS] = int(unicode(self.max_tags_spin.value()))
-        exclude_tag_text = unicode(self.exclude_tags.text()).strip()
+        new_prefs[KEY_MAX_TAGS] = int(six.text_type(self.max_tags_spin.value()))
+        exclude_tag_text = six.text_type(self.exclude_tags.text()).strip()
         if exclude_tag_text.endswith(','):
             exclude_tag_text = exclude_tag_text[:-1]
         new_prefs[KEY_MAX_TAG_EXCLUSIONS] = [t.strip() for t in exclude_tag_text.split(',')]

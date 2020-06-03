@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -46,7 +47,7 @@ else:
     def convert_qvariant(x):
         vt = x.type()
         if vt == x.String:
-            return unicode(x.toString())
+            return six.text_type(x.toString())
         if vt == x.List:
             return [convert_qvariant(i) for i in x.toList()]
         return x.toPyObject()
@@ -417,7 +418,7 @@ class ListComboBox(QComboBox):
         self.setCurrentIndex(selected_idx)
 
     def selected_value(self):
-        return unicode(self.currentText())
+        return six.text_type(self.currentText())
 
 
 class KeyValueComboBox(QComboBox):
@@ -430,7 +431,7 @@ class KeyValueComboBox(QComboBox):
     def populate_combo(self, selected_key):
         self.clear()
         selected_idx = idx = -1
-        for key, value in self.values.iteritems():
+        for key, value in six.iteritems(self.values):
             idx = idx + 1
             self.addItem(value)
             if key == selected_key:
@@ -438,8 +439,8 @@ class KeyValueComboBox(QComboBox):
         self.setCurrentIndex(selected_idx)
 
     def selected_key(self):
-        for key, value in self.values.iteritems():
-            if value == unicode(self.currentText()).strip():
+        for key, value in six.iteritems(self.values):
+            if value == six.text_type(self.currentText()).strip():
                 return key
 
 
@@ -674,7 +675,7 @@ class PrefsViewerDialog(SizePersistedDialog):
     def _populate_settings(self):
         self.keys_list.clear()
         ns_prefix = self._get_ns_prefix()
-        keys = sorted([k[len(ns_prefix):] for k in self.db.prefs.iterkeys()
+        keys = sorted([k[len(ns_prefix):] for k in six.iterkeys(self.db.prefs)
                        if k.startswith(ns_prefix)])
         for key in keys:
             self.keys_list.addItem(key)
@@ -685,7 +686,7 @@ class PrefsViewerDialog(SizePersistedDialog):
         if new_row < 0:
             self.value_text.clear()
             return
-        key = unicode(self.keys_list.currentItem().text())
+        key = six.text_type(self.keys_list.currentItem().text())
         val = self.db.prefs.get_namespaced(self.namespace, key, '')
         self.value_text.setPlainText(self.db.prefs.to_raw(val))
 
@@ -701,8 +702,8 @@ class PrefsViewerDialog(SizePersistedDialog):
         if not confirm(message, self.namespace+'_clear_settings', self):
             return
 
-        val = self.db.prefs.raw_to_object(unicode(self.value_text.toPlainText()))
-        key = unicode(self.keys_list.currentItem().text())
+        val = self.db.prefs.raw_to_object(six.text_type(self.value_text.toPlainText()))
+        key = six.text_type(self.keys_list.currentItem().text())
         self.db.prefs.set_namespaced(self.namespace, key, val)
 
         restart = prompt_for_restart(self, 'Settings changed',
@@ -722,7 +723,7 @@ class PrefsViewerDialog(SizePersistedDialog):
             return
 
         ns_prefix = self._get_ns_prefix()
-        keys = [k for k in self.db.prefs.iterkeys() if k.startswith(ns_prefix)]
+        keys = [k for k in six.iterkeys(self.db.prefs) if k.startswith(ns_prefix)]
         for k in keys:
             del self.db.prefs[k]
         self._populate_settings()

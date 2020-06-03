@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -78,7 +79,7 @@ class QualityCheckAction(InterfaceAction):
         last_sub_menu = None
         last_group = 0
         parent_menu = m
-        for key, menu_config in cfg.PLUGIN_MENUS.iteritems():
+        for key, menu_config in six.iteritems(cfg.PLUGIN_MENUS):
             if key in hidden_menus:
                 continue
             sub_menu = menu_config['sub_menu']
@@ -103,7 +104,7 @@ class QualityCheckAction(InterfaceAction):
 
         last_group = 0
         parent_menu = m.addMenu('Fix')
-        for key, menu_config in cfg.PLUGIN_FIX_MENUS.iteritems():
+        for key, menu_config in six.iteritems(cfg.PLUGIN_FIX_MENUS):
             group = menu_config['group']
             if group != last_group:
                 parent_menu.addSeparator()
@@ -190,7 +191,7 @@ class QualityCheckAction(InterfaceAction):
         check.perform_check(menu_key)
 
     def _get_last_action_description(self):
-        for key, menu_config in cfg.PLUGIN_MENUS.iteritems():
+        for key, menu_config in six.iteritems(cfg.PLUGIN_MENUS):
             if key == self.last_menu_key and menu_config['cat'] == self.last_menu_cat:
                 return 'Repeat last action: ' + menu_config['name']
         return 'Repeat the last Quality Check menu action performed'

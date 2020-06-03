@@ -2,15 +2,16 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import traceback, os, posixpath, urllib, re
+import traceback, os, posixpath, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error, re
 from cgi import escape as esc
 from lxml import etree
-from urllib import unquote as urlunquote
+from six.moves.urllib.parse import unquote as urlunquote
 
 from calibre import guess_type
 from calibre.gui2 import error_dialog
@@ -536,7 +537,7 @@ class EpubCheck(BaseCheck):
                         if extension in CSS_FILES:
                             try:
                                 css = os.path.basename(resource_name).lower()
-                                css_enc = urllib.pathname2url(css).lower()
+                                css_enc = six.moves.urllib.request.pathname2url(css).lower()
                             except:
                                 self.log.error('ERROR parsing book: ', path_to_book)
                                 self.log.error('\tIssue with CSS name: ', resource_name)
@@ -605,7 +606,7 @@ class EpubCheck(BaseCheck):
                             # compared to the opf manifest
                             try:
                                 image = os.path.basename(resource_name).lower()
-                                image_enc = urllib.pathname2url(image).lower()
+                                image_enc = six.moves.urllib.request.pathname2url(image).lower()
                             except:
                                 self.log.error('ERROR parsing book: ', path_to_book)
                                 self.log.error('\tIssue with image name: ', resource_name)
@@ -674,7 +675,7 @@ class EpubCheck(BaseCheck):
                             # Use the base name for the image since relative path might differ from html
                             # compared to the opf manifest
                             try:
-                                image = urllib.url2pathname(resource_name.lower())
+                                image = six.moves.urllib.request.url2pathname(resource_name.lower())
                             except:
                                 self.log.error('ERROR parsing book: ', path_to_book)
                                 self.log.error('\tIssue with image name: ', resource_name)
@@ -697,7 +698,7 @@ class EpubCheck(BaseCheck):
                             image_tag_matches = RE_IMAGE.findall(data)
                             for match in img_tag_matches + image_tag_matches:
                                 rel_path = os.path.normpath(html_dir + match)
-                                normalised_image_name = urllib.url2pathname(rel_path)
+                                normalised_image_name = six.moves.urllib.request.url2pathname(rel_path)
                                 if normalised_image_name not in image_map:
                                     if not found_broken:
                                         self.log(get_title_authors_text(db, book_id))
@@ -1199,7 +1200,7 @@ class EpubCheck(BaseCheck):
                         self.log.error('SKIPPING BOOK (DRM Encrypted): ', get_title_authors_text(db, book_id))
                         return False
                     manifest_names = list(self._manifest_worthy_names(zf))
-                    html_names_map = dict((os.path.normpath(urllib.url2pathname(k)),True) for k in manifest_names
+                    html_names_map = dict((os.path.normpath(six.moves.urllib.request.url2pathname(k)),True) for k in manifest_names
                                           if k[k.rfind('.'):].lower() not in NON_HTML_FILES)
                     for name in manifest_names:
                         if name.endswith('.ncx'):
@@ -1212,7 +1213,7 @@ class EpubCheck(BaseCheck):
                                                    namespaces={'ncx':NCX_NS})
                                 for src_node in src_nodes:
                                     link = src_node.partition('#')[0]
-                                    link_path = os.path.normpath(urllib.url2pathname(ncx_dir + link))
+                                    link_path = os.path.normpath(six.moves.urllib.request.url2pathname(ncx_dir + link))
                                     #self.log.info('\tLooking for:', link_path)
                                     if link_path not in html_names_map:
                                         broken_links.append(link)
@@ -1563,7 +1564,7 @@ class EpubCheck(BaseCheck):
 
             # If we got to here, then we found "some" margins in the style that are
             # either identical or a subset of our preferred margins
-            for pref, pref_value in self.user_margins.iteritems():
+            for pref, pref_value in six.iteritems(self.user_margins):
                 if pref_value < 0.0:  # The user does not want this margin defined
                     if pref in doc_defined_margins:  # Currently is defined, so remove it
                         self.log('\t\tMargins are defined in pts but don\'t match calibre preferences')
@@ -1591,7 +1592,7 @@ class EpubCheck(BaseCheck):
             from calibre.ebooks.conversion.config import load_defaults
             ps = load_defaults('page_setup')
             # Only interested in the margins out of page setup settings
-            prefs_margins = dict((k,v) for k,v in ps.iteritems() if k.startswith('margin_'))
+            prefs_margins = dict((k,v) for k,v in six.iteritems(ps) if k.startswith('margin_'))
             if 'margin_top' not in prefs_margins:
                 # The user has never changed their page setup defaults to save settings
                 prefs_margins = calibre_default_margins
@@ -1860,7 +1861,7 @@ class EpubCheck(BaseCheck):
         period_index = href.find('.')
         if hash_index > 0 and hash_index > period_index:
             href = href.partition('#')[0]
-        href = urllib.unquote(href)
+        href = six.moves.urllib.parse.unquote(href)
         name = href
         if base:
             name = posixpath.join(base, href)
@@ -1931,7 +1932,7 @@ class EpubCheck(BaseCheck):
         """Automatically decode :param:`data` into a `unicode` object."""
         def fix_data(d):
             return d.replace('\r\n', '\n').replace('\r', '\n')
-        if isinstance(data, unicode):
+        if isinstance(data, six.text_type):
             return fix_data(data)
         bom_enc = None
         if data[:4] in ('\0\0\xfe\xff', '\xff\xfe\0\0'):
