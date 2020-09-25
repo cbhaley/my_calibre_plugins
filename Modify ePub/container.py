@@ -4,6 +4,7 @@ from __future__ import (division, absolute_import,
                         print_function)
 import six
 from six.moves import range
+from polyglot.builtins import unicode_type
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -684,7 +685,7 @@ class WritableContainer(Container):
         self.dirtied.clear()
         with ZipFile(path, 'w', compression=ZIP_DEFLATED) as zf:
             # Write mimetype
-            zf.writestr('mimetype', bytes(guess_type('a.epub')[0]),
+            zf.writestr('mimetype', unicode_type(guess_type('a.epub')[0]),
                     compression=ZIP_STORED)
             # Write everything else
             exclude_files = ['.DS_Store','mimetype']
