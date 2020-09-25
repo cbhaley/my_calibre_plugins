@@ -2,17 +2,19 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (division, absolute_import,
                         print_function)
+import six
+from six.moves import range
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, posixpath, sys, re, urllib
+import os, posixpath, sys, re, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
 
 from lxml import etree
 from lxml.etree import XMLSyntaxError
-from urlparse import urldefrag, urlparse, urlunparse
-from urllib import unquote as urlunquote
+from six.moves.urllib.parse import urldefrag, urlparse, urlunparse
+from six.moves.urllib.parse import unquote as urlunquote
 
 from calibre import guess_type, prepare_string_for_xml
 from calibre.ebooks.chardet import xml_to_unicode
@@ -170,11 +172,11 @@ class Container(object):
         if not base and rel_to_opf:
             base = self.opf_dir
         if not base:
-            return urllib.quote(name)
+            return six.moves.urllib.parse.quote(name)
         href = posixpath.relpath(name, base)
         if href == '.':
             href = ''
-        return urllib.quote(href)
+        return six.moves.urllib.parse.quote(href)
 
     def abshref(self, href, base_name):
         """Convert the URL provided in :param:`href` from a reference
@@ -228,7 +230,7 @@ class Container(object):
                     self.log('Parsing xml file:', name)
                     data = self._parse_xml(data)
             except XMLSyntaxError as err:
-                raise ParseError(name, unicode(err))
+                raise ParseError(name, six.text_type(err))
         if hasattr(data, 'xpath'):
             self.etree_data_map[name] = data
         return data
@@ -303,7 +305,7 @@ class Container(object):
         """Automatically decode :param:`data` into a `unicode` object."""
         def fix_data(d):
             return d.replace('\r\n', '\n').replace('\r', '\n')
-        if isinstance(data, unicode):
+        if isinstance(data, six.text_type):
             return fix_data(data)
         bom_enc = None
         if data[:4] in ('\0\0\xfe\xff', '\xff\xfe\0\0'):
@@ -399,7 +401,7 @@ class WritableContainer(Container):
         items = self.opf.xpath('//opf:manifest/opf:item[@id]',
                 namespaces={'opf':OPF_NS})
         ids = set([x.get('id') for x in items])
-        for x in xrange(sys.maxint):
+        for x in range(sys.maxsize):
             c = 'id%d'%x
             if c not in ids:
                 return c
@@ -863,7 +865,7 @@ class ExtendedContainer(WritableContainer):
         data = self.get_parsed_etree(html_name)
         body = XPath('//h:body')(data)
         if body:
-            text = etree.tostring(body[0], method='text', encoding=unicode)
+            text = etree.tostring(body[0], method='text', encoding=six.text_type)
         else:
             text = ''
         text = re.sub(r'\s+', '', text)

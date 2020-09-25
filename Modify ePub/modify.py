@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -918,7 +919,7 @@ class BookModifier(object):
             else:
                 prefs_margins = default_margins
 
-            for s, v in prefs_margins.iteritems():
+            for s, v in six.iteritems(prefs_margins):
                 setattr(self.opts, s, v)
 
         def get_epub_output_options():
@@ -935,7 +936,7 @@ class BookModifier(object):
             else:
                 prefs_options = default_values
 
-            for s, v in prefs_options.iteritems():
+            for s, v in six.iteritems(prefs_options):
                 setattr(self.opts, s, v)
 
         self.opts = OptionValues()

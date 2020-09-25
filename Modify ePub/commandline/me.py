@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2012, Grant Drake <grant.drake@gmail.com>'
@@ -134,7 +135,7 @@ def parse_args(args):
                     i += 1
                 options[option_name] = True
             else:
-                print('ERROR: Unknown argument: ', option_name)
+                print(('ERROR: Unknown argument: ', option_name))
                 aborted = True
                 break
         else:
@@ -152,13 +153,13 @@ def parse_args(args):
 def pump_debug_output(epub_input_path, epub_output_path, options, cover_path):
     print('------------------------------------')
     print('MODIFY EPUB OPTIONS')
-    print('Input ePub:  ', epub_input_path)
+    print(('Input ePub:  ', epub_input_path))
     if epub_output_path:
-        print('Output epub: ', epub_output_path)
+        print(('Output epub: ', epub_output_path))
     if cover_path:
-        print('Cover path:  ', cover_path)
-    enabled_options = [o for o,v in options.iteritems() if v]
-    print('Options:     ', ','.join(enabled_options))
+        print(('Cover path:  ', cover_path))
+    enabled_options = [o for o,v in six.iteritems(options) if v]
+    print(('Options:     ', ','.join(enabled_options)))
     print('------------------------------------')
 
 
@@ -217,7 +218,7 @@ def main():
             if epub_input_path != epub_output_path:
                 os.remove(epub_output_path)
     except:
-        print(traceback.format_exc())
+        print((traceback.format_exc()))
         return 2
 
     sys.stdout.flush()

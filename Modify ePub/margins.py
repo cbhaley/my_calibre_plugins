@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -33,7 +34,7 @@ class MarginsUpdater(object):
         from calibre.ebooks.conversion.config import load_defaults
         ps = load_defaults('page_setup')
         # Only interested in the margins out of page setup settings
-        prefs_margins = dict((k,v) for k,v in ps.iteritems() if k.startswith('margin_'))
+        prefs_margins = dict((k,v) for k,v in six.iteritems(ps) if k.startswith('margin_'))
         if 'margin_top' not in prefs_margins:
             # The user has never changed their page setup defaults to save settings
             prefs_margins = calibre_default_margins
@@ -41,7 +42,7 @@ class MarginsUpdater(object):
 
     def _prefs_to_css_properties(self, user_margins):
         css_margins = ''
-        for pref, value in user_margins.iteritems():
+        for pref, value in six.iteritems(user_margins):
             # Negative margins mean we don't want the attribute written
             if value >= 0.0:
                 property_name = re.sub('_', '-', pref)
@@ -86,7 +87,7 @@ class MarginsUpdater(object):
 
         # If we got to here, then we found "some" margins in the style that are
         # either identical or a subset of our preferred margins
-        for pref, pref_value in self.user_margins.iteritems():
+        for pref, pref_value in six.iteritems(self.user_margins):
             if pref_value < 0.0:  # The user does not want this margin defined
                 if pref in doc_defined_margins:  # Currently is defined, so remove it
                     return True

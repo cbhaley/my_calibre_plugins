@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -27,7 +28,7 @@ class CSSUpdater(object):
         from calibre.ebooks.conversion.config import load_defaults
         ps = load_defaults('look_and_feel')
         # Only interested in the extra_css out of settings
-        prefs_css = dict((k,v) for k,v in ps.iteritems() if k == 'extra_css')
+        prefs_css = dict((k,v) for k,v in six.iteritems(ps) if k == 'extra_css')
         return prefs_css.get('extra_css', '')
 
     def rewrite_css(self):

@@ -2,6 +2,7 @@
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
 from __future__ import (unicode_literals, division, absolute_import,
                         print_function)
+import six
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -195,7 +196,7 @@ class ModifyEpubDialog(SizePersistedDialog):
 
     def _save_clicked(self):
         self._set_options()
-        cfg.plugin_prefs[cfg.STORE_SAVED_SETTINGS] = [k for k,v in self.options.iteritems() if v]
+        cfg.plugin_prefs[cfg.STORE_SAVED_SETTINGS] = [k for k,v in six.iteritems(self.options) if v]
 
     def _restore_clicked(self):
         self._select_none_clicked()

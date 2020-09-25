@@ -8,7 +8,7 @@ __copyright__ = '2012, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import posixpath, os
-from urllib import unquote
+from six.moves.urllib.parse import unquote
 
 from calibre import fit_image
 from calibre.utils.magick.draw import Image

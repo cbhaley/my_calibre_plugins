@@ -53,8 +53,8 @@ def do_modify_epubs(books_to_modify, options, cpus, notification=lambda x,y:x):
         count += 1
         notification(float(count)/total, 'Modifying ePubs')
         # Add this job's output to the current log
-        print('Logfile for book ID %d (%s / %s)'%(book_id, job._title, job._authors))
-        print(job.details)
+        print(('Logfile for book ID %d (%s / %s)'%(book_id, job._title, job._authors)))
+        print((job.details))
         if count >= total:
             # All done!
             break
