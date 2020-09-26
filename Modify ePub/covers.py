@@ -9,6 +9,7 @@ __docformat__ = 'restructuredtext en'
 
 import posixpath, os
 from six.moves.urllib.parse import unquote
+from io import open
 
 from calibre import fit_image
 from calibre.utils.magick.draw import Image
@@ -79,7 +80,6 @@ class CoverUpdater(object):
         # Apply any "fixes" to the manifest for device workarounds
         self.log('\t...Apply device specific fixes')
         self._ensure_opf_contains_cover_fixes()
-
         self.log('\t...Cover modifications completed')
 
     def _identify_image_text_folders(self):
@@ -229,7 +229,7 @@ class CoverUpdater(object):
                 self.container.delete_from_guide(reference)
 
         # Sort by the largest size
-        covers.sort(cmp=lambda x,y:cmp(x[1], y[1]), reverse=True)
+        covers.sort(key=lambda x:x[1], reverse=True)
         if covers:
             reference = covers[0][0]
             href = reference.get('href')
@@ -366,7 +366,7 @@ class CoverUpdater(object):
         rel_cover_href = os.path.normpath(rel_path).replace('\\','/')
         tp = templ%unquote(rel_cover_href)
 
-        with open(titlepage_path, 'wb') as f:
+        with open(titlepage_path, 'w') as f:
             f.write(tp)
         titlepage_name = os.path.relpath(titlepage_path, self.container.root).replace(os.sep, '/')
         return titlepage_name

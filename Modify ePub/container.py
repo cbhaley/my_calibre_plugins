@@ -666,17 +666,14 @@ class WritableContainer(Container):
                 elem.tail = i
 
     def set(self, name, val):
-        if isinstance(val, bytes): print('***** set 1', name)
         if hasattr(val, 'xpath'):
             self.etree_data_map[name] = val
-            val = unicode_type(etree.tostring(val, encoding='utf-8',
-                    xml_declaration=True))
+            val = unicode_type(etree.tostring(val, encoding=six.text_type))
         else:
             # If we have modified the raw text directly then it invalidates
             # any etree we may have stored, so clear from the cache.
             if name in self.etree_data_map:
                 self.etree_data_map.pop(name)
-        if isinstance(val, bytes): print('***** set 2', name)
         self.raw_data_map[name] = val
         self.dirtied.add(name)
 
@@ -688,18 +685,14 @@ class WritableContainer(Container):
         #self.log('Writing epub contents back to zipfile:', path)
         for name in self.dirtied:
             raw = self.raw_data_map[name]
-            if isinstance(raw, bytes): print('***** write', name)
             #self.log('  Updating file:', self.name_path_map[name])
             with open(self.name_path_map[name], 'w', newline='\n') as f:
                 f.write(raw)
         self.dirtied.clear()
-#         print('***** write 1')
         with ZipFile(path, 'w', compression=ZIP_DEFLATED) as zf:
             # Write mimetype
-            zf.writestr('mimetype', guess_type('a.epub')[0],
-                    compression=ZIP_STORED)
+            zf.writestr('mimetype', guess_type('a.epub')[0], compression=ZIP_STORED)
             # Write everything else
-#             print('***** write 2')
             exclude_files = ['.DS_Store','mimetype']
             for root, _dirs, files in os.walk(self.root):
                 for fn in files:
@@ -709,7 +702,6 @@ class WritableContainer(Container):
                     zfn = os.path.relpath(absfn,
                             self.root).replace(os.sep, '/')
                     zf.write(absfn, zfn)
-#         print('***** write 3')
 
 class ExtendedContainer(WritableContainer):
     '''
