@@ -83,7 +83,7 @@ class Container(object):
         container_path = join(self.root, 'META-INF', 'container.xml')
         if not exists(container_path):
             raise InvalidEpub('No META-INF/container.xml in epub')
-        self.container = etree.fromstring(open(container_path, 'r').read())
+        self.container = etree.fromstring(open(container_path, 'rb').read())
         opf_files = self.container.xpath((
             r'child::ocf:rootfiles/ocf:rootfile'
             '[@media-type="%s" and @full-path]'%unicode_type(guess_type('a.opf')[0])
