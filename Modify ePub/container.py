@@ -10,7 +10,9 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
-import os, posixpath, sys, re, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+import os, posixpath, sys, re
+import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
+from io import open
 
 from lxml import etree
 from lxml.etree import XMLSyntaxError
@@ -81,10 +83,10 @@ class Container(object):
         container_path = join(self.root, 'META-INF', 'container.xml')
         if not exists(container_path):
             raise InvalidEpub('No META-INF/container.xml in epub')
-        self.container = etree.fromstring(open(container_path, 'rb').read())
+        self.container = etree.fromstring(open(container_path, 'r').read())
         opf_files = self.container.xpath((
             r'child::ocf:rootfiles/ocf:rootfile'
-            '[@media-type="%s" and @full-path]'%guess_type('a.opf')[0]
+            '[@media-type="%s" and @full-path]'%unicode_type(guess_type('a.opf')[0])
             ), namespaces={'ocf':OCF_NS}
         )
         if not opf_files:
@@ -106,7 +108,7 @@ class Container(object):
                 if path == opf_path:
                     self.opf_name = name
                     self.opf_dir = posixpath.dirname(self.opf_name)
-                    self.mime_map[name] = guess_type('a.opf')[0]
+                    self.mime_map[name] = unicode_type(guess_type('a.opf')[0])
 
         for item in self.opf.xpath(
                 '//opf:manifest/opf:item[@href and @media-type]',
@@ -208,10 +210,12 @@ class Container(object):
         Return the named resource as raw data
         '''
         if name in self.raw_data_map:
+            if isinstance(self.raw_data_map[name], bytes): print('***** get_raw 1', name)
             return self.raw_data_map[name]
         path = self.name_path_map[name]
-        with open(path, 'rb') as f:
+        with open(path, 'r', encoding="utf-8") as f:
             raw = f.read()
+        if isinstance(raw, bytes): print('***** get_raw 2', name)
         self.raw_data_map[name] = raw
         return raw
 
@@ -232,6 +236,7 @@ class Container(object):
                     data = self._parse_xml(data)
             except XMLSyntaxError as err:
                 raise ParseError(name, six.text_type(err))
+        if isinstance(data, bytes): print('***** get_parsed_etree', name)
         if hasattr(data, 'xpath'):
             self.etree_data_map[name] = data
         return data
@@ -249,6 +254,7 @@ class Container(object):
                     decoder=self.decode,
                     preprocessor=self.html_preprocessor,
                     filename=fname, non_html_file_tags={'ncx'})
+            if isinstance(data, bytes): print('***** _parse_xhtml', name)
         except NotHTML:
             return self._parse_xml(orig_data)
         return data
@@ -391,7 +397,7 @@ class WritableContainer(Container):
                 href=self.name_to_href(name),
                 id=self.generate_manifest_id())
         if not mt:
-            mt = guess_type(posixpath.basename(name))[0]
+            mt = unicode_type(guess_type(posixpath.basename(name))[0])
         if not mt:
             mt = 'application/octest-stream'
         item.set('media-type', mt)
@@ -451,7 +457,7 @@ class WritableContainer(Container):
         item = manifest.makeelement('{%s}item'%OPF_NS, nsmap={'opf':OPF_NS},
                 href=href, id=id)
         if not mt:
-            mt = guess_type(href)[0]
+            mt = unicode_type(guess_type(href)[0])
         if not mt:
             mt = 'application/octest-stream'
         item.set('media-type', mt)
@@ -544,6 +550,7 @@ class WritableContainer(Container):
         self.log('\t  Manifest item removed: %s (%s)'%(item.get('href'), item.get('id')))
         self.fix_tail_before_delete(item)
         manifest.remove(item)
+        if isinstance(self.opf, bytes): print('***** delete_from_manifest', name)
         self.set(self.opf_name, self.opf)
 
         # Now remove the item from the spine if it exists
@@ -659,15 +666,17 @@ class WritableContainer(Container):
                 elem.tail = i
 
     def set(self, name, val):
+        if isinstance(val, bytes): print('***** set 1', name)
         if hasattr(val, 'xpath'):
             self.etree_data_map[name] = val
-            val = etree.tostring(val, encoding='utf-8',
-                    xml_declaration=True)
+            val = unicode_type(etree.tostring(val, encoding='utf-8',
+                    xml_declaration=True))
         else:
             # If we have modified the raw text directly then it invalidates
             # any etree we may have stored, so clear from the cache.
             if name in self.etree_data_map:
                 self.etree_data_map.pop(name)
+        if isinstance(val, bytes): print('***** set 2', name)
         self.raw_data_map[name] = val
         self.dirtied.add(name)
 
@@ -679,15 +688,18 @@ class WritableContainer(Container):
         #self.log('Writing epub contents back to zipfile:', path)
         for name in self.dirtied:
             raw = self.raw_data_map[name]
+            if isinstance(raw, bytes): print('***** write', name)
             #self.log('  Updating file:', self.name_path_map[name])
-            with open(self.name_path_map[name], 'wb') as f:
+            with open(self.name_path_map[name], 'w', newline='\n') as f:
                 f.write(raw)
         self.dirtied.clear()
+#         print('***** write 1')
         with ZipFile(path, 'w', compression=ZIP_DEFLATED) as zf:
             # Write mimetype
-            zf.writestr('mimetype', unicode_type(guess_type('a.epub')[0]),
+            zf.writestr('mimetype', guess_type('a.epub')[0],
                     compression=ZIP_STORED)
             # Write everything else
+#             print('***** write 2')
             exclude_files = ['.DS_Store','mimetype']
             for root, _dirs, files in os.walk(self.root):
                 for fn in files:
@@ -697,7 +709,7 @@ class WritableContainer(Container):
                     zfn = os.path.relpath(absfn,
                             self.root).replace(os.sep, '/')
                     zf.write(absfn, zfn)
-
+#         print('***** write 3')
 
 class ExtendedContainer(WritableContainer):
     '''

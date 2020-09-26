@@ -9,6 +9,7 @@ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import os, time, traceback, re
+from io import open
 
 from calibre import CurrentDir, guess_type
 from calibre.ebooks.chardet import strip_encoding_declarations
@@ -97,7 +98,7 @@ class BookModifier(object):
         the book metadata, such as generating a new jacket.
         '''
         if calibre_opf_path and os.path.exists(calibre_opf_path):
-            with open(calibre_opf_path, 'rb') as f:
+            with open(calibre_opf_path, 'r') as f:
                 calibre_opf = OPF(f, os.path.dirname(calibre_opf_path))
             self.mi = calibre_opf.to_book_metadata()
 
@@ -562,7 +563,7 @@ class BookModifier(object):
                 html_text = re.sub(r'/html>\s+', r'/html>', html_text)
                 html_text = re.sub(r' +', r' ', html_text)
             return html_text
-        
+
         for name in container.get_html_names():
             orig_html = container.get_raw(name)
             html = orig_html
@@ -745,7 +746,7 @@ class BookModifier(object):
 
         def strip_kobo_for_page(html_text):
             HTML_ENTITY = []
-                
+
             html_text = re.sub(r'<(\S+)([^/>]*?)></\1>', r'<\1\2/>', html_text)
             html_text = re.sub(r'<([^>]*?)(\s+?)/>', r'<\1/>', html_text)
             html_text = re.sub(r'<span([^>]+?) id="kobo([^"]+?)"', r'<span id="kobo\2"\1', html_text)
