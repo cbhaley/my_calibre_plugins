@@ -213,9 +213,13 @@ class Container(object):
             if isinstance(self.raw_data_map[name], bytes): print('***** get_raw 1', name)
             return self.raw_data_map[name]
         path = self.name_path_map[name]
-        with open(path, 'r', encoding="utf-8") as f:
+        extension = name[name.lower().rfind('.'):].lower()
+        if extension in IMAGE_FILES:
+            mode = 'rb'
+        else:
+            mode = 'r'
+        with open(path, mode) as f:
             raw = f.read()
-        if isinstance(raw, bytes): print('***** get_raw 2', name)
         self.raw_data_map[name] = raw
         return raw
 
