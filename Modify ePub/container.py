@@ -108,7 +108,7 @@ class Container(object):
                 if path == opf_path:
                     self.opf_name = name
                     self.opf_dir = posixpath.dirname(self.opf_name)
-                    self.mime_map[name] = unicode_type(guess_type('a.opf')[0])
+                    self.mime_map[name] = guess_type('a.opf')[0]
 
         for item in self.opf.xpath(
                 '//opf:manifest/opf:item[@href and @media-type]',
@@ -397,7 +397,7 @@ class WritableContainer(Container):
                 href=self.name_to_href(name),
                 id=self.generate_manifest_id())
         if not mt:
-            mt = unicode_type(guess_type(posixpath.basename(name))[0])
+            mt = guess_type(posixpath.basename(name))[0]
         if not mt:
             mt = 'application/octest-stream'
         item.set('media-type', mt)
@@ -457,7 +457,7 @@ class WritableContainer(Container):
         item = manifest.makeelement('{%s}item'%OPF_NS, nsmap={'opf':OPF_NS},
                 href=href, id=id)
         if not mt:
-            mt = unicode_type(guess_type(href)[0])
+            mt = guess_type(href)[0]
         if not mt:
             mt = 'application/octest-stream'
         item.set('media-type', mt)
