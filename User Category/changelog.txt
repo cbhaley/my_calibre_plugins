@@ -1,0 +1,38 @@
+[B]Version 1.5.4[/B] - 18 January 2020 - made by davidfor
+Update: Changes for Python 3 support in calibre.
+
+[B]Version 1.5.2[/B] - 06 Jan 2013
+Add a Move menu option to support moving books between user categories
+Prevent plugin being used in Device View or on Device View context menu
+
+[B]Version 1.5.1[/B] - 29 Aug 2012
+Add fixes to handle cases of blank authors and tags
+
+[B]Version 1.5.0[/B] - 11 Sep 2011
+Upgrade to support the centralised keyboard shortcut management in Calibre
+
+[B]Version 1.4.2[/B] - 03 Jul 2011
+Fix for Calibre code changes made with release 0.8.8 to tag view
+
+[B]Version 1.4.1[/B] - 09 Apr 2011
+Support skinning of icons by putting them in a plugin name subfolder of local resources/images
+
+[B]Version 1.4[/B] - 03 Apr 2011
+Rewritten for new plugin infrastructure in Calibre 0.7.53
+
+[B]Version 1.3[/B] - 19 Feb 2011
+Bug-fix for icon missing and for when user has no user categories created
+Bug-fix for ensuring do not cache db reference when switching libraries
+
+[B]Version 1.2[/B] - 29 Jan 2011
+Rewritten as 'User Category' plugin
+Add configuration dialog
+Make menus dynamically populated without requiring Calibre restarts
+Popup dialog for choosing from multiple authors/tags
+Add menu options to show in tag browser and maintain user categories
+
+[B]Version 1.1[/B] - 10 Dec 2011
+Added icons for the submenus
+
+[B]Version 1.0[/B] - 28 Nov 2010
+Initial release as separate 'Add To User Category' and 'Remove From User Category' plugins
