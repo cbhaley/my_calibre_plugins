@@ -12,6 +12,7 @@ try:
     from PyQt5.Qt import QUrl, QModelIndex
 except ImportError:
     from PyQt4.Qt import QUrl, QModelIndex
+from io import open
 
 from calibre.gui2 import error_dialog, open_url
 from calibre.gui2.actions import InterfaceAction
@@ -93,14 +94,14 @@ class ModifyEpubAction(InterfaceAction):
             return error_dialog(self.gui, _('Modify ePub failed'), msg,
                                 show_copy_button=True, show=True,
                                 det_msg=job.details)
-        
+
         payload = (modified_epubs_map, job._tdir)
-        
-        if cfg.plugin_prefs[cfg.STORE_NAME].get(cfg.KEY_ASK_FOR_CONFIRMATION, 
+
+        if cfg.plugin_prefs[cfg.STORE_NAME].get(cfg.KEY_ASK_FOR_CONFIRMATION,
                                                 cfg.DEFAULT_STORE_VALUES[cfg.KEY_ASK_FOR_CONFIRMATION]):
             msg = _('<p>Modify ePub modified <b>%d ePub files(s)</b> into a temporary location. '
                    'Proceed with replacing the versions in your library?' % update_count)
-    
+
             self.gui.proceed_question(self._proceed_with_updating_epubs,
                 payload, job.details,
                 _('Modify log'), _('Modify ePub complete'), msg,
@@ -108,7 +109,7 @@ class ModifyEpubAction(InterfaceAction):
                 cancel_callback=self._cancel_updating_epubs)
         else:
             self._proceed_with_updating_epubs(payload)
-        
+
 
     def _proceed_with_updating_epubs(self, payload):
         modified_epubs_map, tdir = payload
@@ -132,7 +133,7 @@ class ModifyEpubAction(InterfaceAction):
             HELP_FILE = 'Modify ePub Help.htm'
             file_path = os.path.join(config_dir, 'plugins', HELP_FILE)
             file_data = self.load_resources(HELP_FILE)[HELP_FILE]
-            with open(file_path,'w') as f:
+            with open(file_path,'wb') as f:
                 f.write(file_data)
             return file_path
         url = 'file:///' + get_help_file_resource()
