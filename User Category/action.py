@@ -298,6 +298,9 @@ class UserCategoryAction(InterfaceAction):
 
         # Final steps (point of no return) - update the database
         db.prefs['user_categories'] = self.categories
+        # The category contents might have changed, invalidating the search caches
+        if hasattr(db, 'new_api'):
+            db.new_api.clear_search_caches()
         # Signal the tags panel to refresh it's view.
         self.gui.tags_view.recount()
 
