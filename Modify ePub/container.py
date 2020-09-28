@@ -210,16 +210,20 @@ class Container(object):
         Return the named resource as raw data
         '''
         if name in self.raw_data_map:
-            if isinstance(self.raw_data_map[name], bytes): print('***** get_raw 1', name)
             return self.raw_data_map[name]
         path = self.name_path_map[name]
         extension = name[name.lower().rfind('.'):].lower()
-        if extension in IMAGE_FILES:
-            mode = 'rb'
-        else:
-            mode = 'r'
-        with open(path, mode) as f:
-            raw = f.read()
+        # Defensive code: can't be sure that the file is text
+        try:
+            try:
+                with open(path, 'r') as f:
+                    raw = f.read()
+            except:
+                with open(path, 'rb') as f:
+                    raw = f.read()
+        except:
+            self.log('Exception in get_raw: name=', name)
+            raise
         self.raw_data_map[name] = raw
         return raw
 
@@ -240,7 +244,6 @@ class Container(object):
                     data = self._parse_xml(data)
             except XMLSyntaxError as err:
                 raise ParseError(name, six.text_type(err))
-        if isinstance(data, bytes): print('***** get_parsed_etree', name)
         if hasattr(data, 'xpath'):
             self.etree_data_map[name] = data
         return data
@@ -258,7 +261,6 @@ class Container(object):
                     decoder=self.decode,
                     preprocessor=self.html_preprocessor,
                     filename=fname, non_html_file_tags={'ncx'})
-            if isinstance(data, bytes): print('***** _parse_xhtml', name)
         except NotHTML:
             return self._parse_xml(orig_data)
         return data
@@ -554,7 +556,6 @@ class WritableContainer(Container):
         self.log('\t  Manifest item removed: %s (%s)'%(item.get('href'), item.get('id')))
         self.fix_tail_before_delete(item)
         manifest.remove(item)
-        if isinstance(self.opf, bytes): print('***** delete_from_manifest', name)
         self.set(self.opf_name, self.opf)
 
         # Now remove the item from the spine if it exists

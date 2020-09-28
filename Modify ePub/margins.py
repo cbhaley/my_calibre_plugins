@@ -167,18 +167,18 @@ class MarginsUpdater(object):
         css_files_to_remove = []
         for name in self.container.name_path_map:
             mt = self.container.mime_map.get(name, '')
-            data = self.container.get_raw(name)
-
             extension = name[name.lower().rfind("."):].lower()
 
             if extension in ['.jpg', '.jpeg', '.gif', '.ncx',
                    '.opf', '.xpgt', '.otf','.ttf', '.png']:
-                pass
+                continue
 
-            elif name.endswith('titlepage.xhtml'):
-                pass
+            if name.endswith('titlepage.xhtml'):
+                continue
 
-            elif mt.lower() in CSS_MIME_TYPES:
+            if mt.lower() in CSS_MIME_TYPES:
+                # read the data here because we know it is text, avoiding image decoding
+                data = self.container.get_raw(name)
                 page_style_exists = True if data.find('@page') != -1 else False
                 css_dirtied = False
                 match_styles = RE_BOOK_MGNS.findall(data)
@@ -205,6 +205,8 @@ class MarginsUpdater(object):
                     css_files_to_remove.append(name)
 
             elif mt.lower() in HTML_MIME_TYPES:
+                # read the data here because we know it is text, avoiding image decoding
+                data = self.container.get_raw(name)
                 if RE_BOOK_MGNS.findall(data[:1000]):
                     match_styles = RE_BOOK_MGNS.findall(data[:1000])
                     resource_dirtied = False
