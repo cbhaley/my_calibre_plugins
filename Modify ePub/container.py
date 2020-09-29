@@ -12,7 +12,6 @@ __docformat__ = 'restructuredtext en'
 
 import os, posixpath, sys, re
 import six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error
-from io import open
 
 from lxml import etree
 from lxml.etree import XMLSyntaxError
@@ -694,7 +693,7 @@ class WritableContainer(Container):
         for name in self.dirtied:
             raw = self.raw_data_map[name]
             #self.log('  Updating file:', self.name_path_map[name])
-            with open(self.name_path_map[name], 'w', newline='\n') as f:
+            with open(self.name_path_map[name], 'w') as f:
                 f.write(raw)
         self.dirtied.clear()
         with ZipFile(path, 'w', compression=ZIP_DEFLATED) as zf:

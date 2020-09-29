@@ -9,7 +9,6 @@ __docformat__ = 'restructuredtext en'
 
 import posixpath, os
 from six.moves.urllib.parse import unquote
-from io import open
 
 from calibre import fit_image
 from calibre.utils.magick.draw import Image

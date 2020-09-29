@@ -12,7 +12,6 @@ try:
     from PyQt5.Qt import QUrl, QModelIndex
 except ImportError:
     from PyQt4.Qt import QUrl, QModelIndex
-from io import open
 
 from calibre.gui2 import error_dialog, open_url
 from calibre.gui2.actions import InterfaceAction

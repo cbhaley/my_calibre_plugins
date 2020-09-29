@@ -9,7 +9,6 @@ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 import os, time, traceback, re
-from io import open
 
 from calibre import CurrentDir, guess_type
 from calibre.ebooks.chardet import strip_encoding_declarations
