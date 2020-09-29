@@ -240,7 +240,7 @@ class Container(object):
                 if mt in OEB_DOCS:
                     data = self._parse_xhtml(data, name)
                 elif mt[-4:] in ('+xml', '/xml'):
-                    self.log('Parsing xml file:', name)
+                    self.log('\t  Parsing xml file:', name)
                     data = self._parse_xml(data)
             except XMLSyntaxError as err:
                 raise ParseError(name, six.text_type(err))
@@ -414,7 +414,10 @@ class WritableContainer(Container):
         items = self.opf.xpath('//opf:manifest/opf:item[@id]',
                 namespaces={'opf':OPF_NS})
         ids = set([x.get('id') for x in items])
-        for x in range(sys.maxsize):
+        # sys.maxsize returns a too-large integer on P2.7 64-bit systems.
+        # Fortunately we don't need trillions of ids. Set the max to
+        # something arbitrary such as 1 billion. :)
+        for x in range(1, 1000000000):
             c = 'id%d'%x
             if c not in ids:
                 return c
@@ -649,7 +652,7 @@ class WritableContainer(Container):
             existing = navpoint.get("playOrder")
             if existing:
                 if existing != str(order):
-                    self.log("Changing playOrder from: %s to: %s"%(existing, str(order)))
+                    self.log("\t  Changing playOrder from: %s to: %s"%(existing, str(order)))
                     navpoint.attrib["playOrder"] = str(order)
                     playorder_changed = True
                 order += 1

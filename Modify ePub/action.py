@@ -19,6 +19,7 @@ from calibre.gui2.actions import InterfaceAction
 from calibre.ptempfile import PersistentTemporaryDirectory, remove_dir
 
 import calibre_plugins.modify_epub.config as cfg
+from calibre_plugins.modify_epub import ActionModifyEpub
 from calibre_plugins.modify_epub.common_utils import set_plugin_icon_resources, get_icon
 from calibre_plugins.modify_epub.dialogs import (ModifyEpubDialog, QueueProgressDialog,
                                                  AddBooksProgressDialog)
@@ -74,7 +75,7 @@ class ModifyEpubAction(InterfaceAction):
         cpus = self.gui.job_manager.server.pool_size
         args = ['calibre_plugins.modify_epub.jobs', 'do_modify_epubs',
                 (books_to_modify, options, cpus)]
-        desc = 'Modify ePubs'
+        desc = 'Modify ePubs version ' + str(ActionModifyEpub.version)
         job = self.gui.job_manager.run_job(
                 self.Dispatcher(self._modify_completed), func, args=args,
                     description=desc)
