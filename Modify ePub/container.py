@@ -4,7 +4,7 @@ from __future__ import (division, absolute_import,
                         print_function)
 import six
 from six.moves import range
-from polyglot.builtins import unicode_type
+from polyglot.builtins import unicode_type, is_py3
 
 __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
@@ -693,8 +693,12 @@ class WritableContainer(Container):
         for name in self.dirtied:
             raw = self.raw_data_map[name]
             #self.log('  Updating file:', self.name_path_map[name])
-            with open(self.name_path_map[name], 'w') as f:
-                f.write(raw)
+            if is_py3:
+                with open(self.name_path_map[name], 'w', newline='') as f:
+                    f.write(raw)
+            else:
+                with open(self.name_path_map[name], 'w') as f:
+                    f.write(raw)
         self.dirtied.clear()
         with ZipFile(path, 'w', compression=ZIP_DEFLATED) as zf:
             # Write mimetype
