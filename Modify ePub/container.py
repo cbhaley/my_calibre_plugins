@@ -724,8 +724,7 @@ class ExtendedContainer(WritableContainer):
         for name in self.name_path_map.keys():
             if name.lower().endswith('encryption.xml'):
                 try:
-                    enc_xml = self.get_raw(name)
-                    root = etree.fromstring(enc_xml)
+                    root = etree.fromstring(open(name, 'rb').read())
                     for em in root.xpath('//*[local-name()="EncryptionMethod" and @Algorithm]'):
                         alg = em.get('Algorithm')
                         if alg not in {ADOBE_OBFUSCATION, IDPF_OBFUSCATION}:
