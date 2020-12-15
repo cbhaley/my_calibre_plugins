@@ -17,6 +17,11 @@ from calibre.gui2 import open_url, error_dialog
 from calibre.gui2.actions import InterfaceAction
 from calibre.utils.config import config_dir
 
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 import calibre_plugins.quality_check.config as cfg
 from calibre_plugins.quality_check.common_utils import (set_plugin_icon_resources, get_icon,
                                                         create_menu_action_unique)
@@ -101,48 +106,48 @@ class QualityCheckAction(InterfaceAction):
         m.addSeparator()
 
         last_group = 0
-        parent_menu = m.addMenu('Fix')
+        parent_menu = m.addMenu(_('Fix'))
         for key, menu_config in cfg.PLUGIN_FIX_MENUS.items():
             group = menu_config['group']
             if group != last_group:
                 parent_menu.addSeparator()
             last_group = group
-            shortcut_name = 'Fix -> ' + menu_config['name']
+            shortcut_name = _('Fix -> ') + menu_config['name']
             create_menu_action_unique(self, parent_menu, menu_config['name'], image=menu_config['image'],
                              tooltip=menu_config['tooltip'], shortcut_name=shortcut_name, unique_name=key,
                              triggered=partial(self.perform_check, key, menu_config['cat']))
         m.addSeparator()
 
-        self.repeat_check_menu = create_menu_action_unique(self, m, 'Repeat last check', image='images/repeat_check.png',
+        self.repeat_check_menu = create_menu_action_unique(self, m, _('Repeat last check'), image='images/repeat_check.png',
                          tooltip=self._get_last_action_description(),
                          triggered=self.repeat_check)
         if not self.last_menu_key:
             self.repeat_check_menu.setEnabled(False)
         m.addSeparator()
 
-        search_menu = m.addMenu('Search scope')
+        search_menu = m.addMenu(_('Search scope'))
         if self.scope == cfg.SCOPE_LIBRARY:
             search_menu.setIcon(get_icon('library.png'))
         else:
             search_menu.setIcon(get_icon('images/scope_selection.png'))
-        self.scope_library_menu = create_menu_action_unique(self, search_menu, 'Library',
-                         tooltip='Run check against entire library, unless a search restriction is applied',
-                         shortcut_name='Search Scope -> Library', unique_name='SearchScopeLibrary',
+        self.scope_library_menu = create_menu_action_unique(self, search_menu, _('Library'),
+                         tooltip=_('Run check against entire library, unless a search restriction is applied'),
+                         shortcut_name=_('Search Scope -> Library'), unique_name='SearchScopeLibrary',
                          triggered=partial(self.change_search_scope, cfg.SCOPE_LIBRARY),
                          is_checked = bool(self.scope == cfg.SCOPE_LIBRARY))
-        self.scope_selection_menu = create_menu_action_unique(self, search_menu, 'Selected book(s)',
-                         tooltip='Run check against selected book(s) only',
-                         shortcut_name='Search Scope -> Selection', unique_name='SearchScopeSelection',
+        self.scope_selection_menu = create_menu_action_unique(self, search_menu, _('Selected book(s)'),
+                         tooltip=_('Run check against selected book(s) only'),
+                         shortcut_name=_('Search Scope -> Selection'), unique_name='SearchScopeSelection',
                          triggered=partial(self.change_search_scope, cfg.SCOPE_SELECTION),
                          is_checked = bool(self.scope == cfg.SCOPE_SELECTION))
         m.addSeparator()
 
-        self.exclude_add_menu = create_menu_action_unique(self, m, 'Exclude from check...', image='images/exclude_add.png',
-                         tooltip='Exclude selected book(s) from a particular Quality Check',
+        self.exclude_add_menu = create_menu_action_unique(self, m, _('Exclude from check...'), image='images/exclude_add.png',
+                         tooltip=_('Exclude selected book(s) from a particular Quality Check'),
                          shortcut_name='Exclude from check', unique_name='Exclude from check',
                          triggered=self.exclude_add)
-        self.exclude_view_menu = create_menu_action_unique(self, m, 'View exclusions...', image='images/exclude_view.png',
-                         tooltip='View exclusions you have added for each Quality Check',
+        self.exclude_view_menu = create_menu_action_unique(self, m, _('View exclusions...'), image='images/exclude_view.png',
+                         tooltip=_('View exclusions you have added for each Quality Check'),
                          shortcut_name='View exclusions', unique_name='View exclusions',
                          triggered=self.exclude_view)
         m.addSeparator()

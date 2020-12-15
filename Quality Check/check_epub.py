@@ -6,6 +6,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 from polyglot.builtins import unicode_type, is_py3
 import traceback, os, posixpath, six.moves.urllib.request, six.moves.urllib.parse, six.moves.urllib.error, re
 try:
@@ -106,11 +111,11 @@ class EpubCheck(BaseCheck):
             self.check_epub_broken_image_links()
 
         elif menu_key == 'check_epub_itunes':
-            self.check_epub_files(ITUNES_FILES, 'iTunes files', 'epub_itunes', show_log=True)
+            self.check_epub_files(ITUNES_FILES, _('iTunes files'), 'epub_itunes', show_log=True)
         elif menu_key == 'check_epub_bookmark':
-            self.check_epub_files(BOOKMARKS_FILES, 'calibre bookmarks', 'epub_calibre_bookmarks', show_log=False)
+            self.check_epub_files(BOOKMARKS_FILES, _('calibre bookmarks'), 'epub_calibre_bookmarks', show_log=False)
         elif menu_key == 'check_epub_os_artifacts':
-            self.check_epub_files(OS_FILES, 'OS artifacts', 'epub_os_artifacts', show_log=True)
+            self.check_epub_files(OS_FILES, _('OS artifacts'), 'epub_os_artifacts', show_log=True)
 
         elif menu_key == 'check_epub_repl_cover':
             self.check_epub_replaceable_cover(check_has_cover=True)
@@ -263,26 +268,26 @@ class EpubCheck(BaseCheck):
                                     break
                     if log_lines:
                         if show_all_matches:
-                            self.log('Matches in book: <b>%s</b>'%get_title_authors_text(db, book_id))
+                            self.log(_('Matches in book: <b>%s</b>')%get_title_authors_text(db, book_id))
                         else:
-                            self.log('First match in book: <b>%s</b>'%get_title_authors_text(db, book_id))
+                            self.log(_('First match in book: <b>%s</b>')%get_title_authors_text(db, book_id))
                         for log_line in log_lines:
                             self.log(log_line)
                         return True
                 return False
 
             except InvalidEpub as e:
-                self.log.error('Invalid epub:', e)
+                self.log.error(_('Invalid epub:'), e)
                 return False
             except:
-                self.log.error('ERROR parsing book: ', path_to_book)
+                self.log.error(_('ERROR parsing book: '), path_to_book)
                 self.log(traceback.format_exc())
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have your search text',
+                             no_match_msg=_('No searched ePub books have your search text'),
                              marked_text='epub_search_text',
-                             status_msg_type='ePub books for search text')
+                             status_msg_type=_('ePub books for search text'))
 
 
     def check_epub_jacket(self, check_has_jacket, check_legacy_only=False):
@@ -290,7 +295,7 @@ class EpubCheck(BaseCheck):
         def evaluate_book(book_id, db):
             path_to_book = db.format_abspath(book_id, 'EPUB', index_is_id=True)
             if not path_to_book:
-                self.log.error('ERROR: EPUB format is missing: ', get_title_authors_text(db, book_id))
+                self.log.error(_('ERROR: EPUB format is missing: '), get_title_authors_text(db, book_id))
                 return not check_has_jacket
             try:
                 with ZipFile(path_to_book, 'r') as zf:
@@ -304,24 +309,24 @@ class EpubCheck(BaseCheck):
                 return not check_has_jacket
 
             except InvalidEpub as e:
-                self.log.error('Invalid epub:', e)
+                self.log.error(_('Invalid epub:'), e)
                 return not check_has_jacket
             except:
-                self.log.error('ERROR parsing book: ', path_to_book)
+                self.log.error(_('ERROR parsing book: '), path_to_book)
                 self.log(traceback.format_exc())
                 return not check_has_jacket
 
         if check_legacy_only:
-            msg = 'No searched ePub books have legacy jackets'
+            msg = _('No searched ePub books have legacy jackets')
             marked_text = 'epub_has_legacy_jacket'
         elif check_has_jacket:
-            msg = 'No searched ePub books have jackets'
+            msg = _('No searched ePub books have jackets')
             marked_text = 'epub_has_jacket'
         else:
-            msg = 'All searched ePub books have jackets'
+            msg = _('All searched ePub books have jackets')
             marked_text = 'epub_missing_jacket'
         self.check_all_files(evaluate_book,
-                             status_msg_type='ePub books for jackets',
+                             status_msg_type=_('ePub books for jackets'),
                              no_match_msg=msg, marked_text=marked_text)
 
 
@@ -330,7 +335,7 @@ class EpubCheck(BaseCheck):
         def evaluate_book(book_id, db):
             path_to_book = db.format_abspath(book_id, 'EPUB', index_is_id=True)
             if not path_to_book:
-                self.log.error('ERROR: EPUB format is missing: ', get_title_authors_text(db, book_id))
+                self.log.error(_('ERROR: EPUB format is missing: '), get_title_authors_text(db, book_id))
                 return False
             try:
                 jacket_count = 0
@@ -344,17 +349,17 @@ class EpubCheck(BaseCheck):
                 return jacket_count > 1
 
             except InvalidEpub as e:
-                self.log.error('Invalid epub:', e)
+                self.log.error(_('Invalid epub:'), e)
                 return False
             except:
-                self.log.error('ERROR parsing book: ', path_to_book)
+                self.log.error(_('ERROR parsing book: '), path_to_book)
                 self.log(traceback.format_exc())
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have multiple jackets',
+                             no_match_msg=_('No searched ePub books have multiple jackets'),
                              marked_text='epub_multiple_jacket',
-                             status_msg_type='ePub books for multiple jackets')
+                             status_msg_type=_('ePub books for multiple jackets'))
 
 
     def _is_legacy_jacket(self, html):
@@ -378,7 +383,7 @@ class EpubCheck(BaseCheck):
         def evaluate_book(book_id, db):
             path_to_book = db.format_abspath(book_id, 'EPUB', index_is_id=True)
             if not path_to_book:
-                self.log.error('ERROR: EPUB format is missing: ', get_title_authors_text(db, book_id))
+                self.log.error(_('ERROR: EPUB format is missing: '), get_title_authors_text(db, book_id))
                 return False
             try:
                 displayed_path = False
@@ -410,9 +415,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have non-zero .xpgt margins',
+                             no_match_msg=_('No searched ePub books have non-zero .xpgt margins'),
                              marked_text='epub_xpgt_margins',
-                             status_msg_type='ePub books for .xpgt margins')
+                             status_msg_type=_('ePub books for .xpgt margins'))
 
 
     def check_epub_inline_xpgt_links(self):
@@ -442,7 +447,7 @@ class EpubCheck(BaseCheck):
                         extension = resource_name[resource_name.rfind('.'):].lower()
                         if extension in CSS_FILES:
                             data = self.zf_read(zf, resource_name).lower()
-                            self.log('Checking css import', resource_name)
+                            self.log(_('Checking css import'), resource_name)
                             if check_for_import_xpgt(data):
                                 return True
                         elif extension in NON_HTML_FILES:
@@ -451,7 +456,7 @@ class EpubCheck(BaseCheck):
                             data = self.zf_read(zf, resource_name).lower()
                             if RE_LINK.search(data):
                                 return True
-                            self.log('Checking html import', resource_name)
+                            self.log(_('Checking html import'), resource_name)
                             if check_for_import_xpgt(data):
                                 return True
                     return False
@@ -465,9 +470,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have inline xpgt links',
+                             no_match_msg=_('No searched ePub books have inline xpgt links'),
                              marked_text='epub_inline_xpgt_links',
-                             status_msg_type='ePub books for inline xpgt links')
+                             status_msg_type=_('ePub books for inline xpgt links'))
 
 
     def check_epub_unmanifested_files(self):
@@ -518,9 +523,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have unmanifested files',
+                             no_match_msg=_('No searched ePub books have unmanifested files'),
                              marked_text='epub_unmanifested_files',
-                             status_msg_type='ePub books for unmanifested files')
+                             status_msg_type=_('ePub books for unmanifested files'))
 
 
     def check_epub_unused_css_files(self):
@@ -535,7 +540,7 @@ class EpubCheck(BaseCheck):
                 with ZipFile(path_to_book, 'r') as zf:
                     contents = zf.namelist()
                     if self._is_drm_encrypted(zf, contents):
-                        self.log.error('SKIPPING BOOK (DRM Encrypted): ', get_title_authors_text(db, book_id))
+                        self.log.error(_('SKIPPING BOOK (DRM Encrypted): '), get_title_authors_text(db, book_id))
                         return False
                     # Build a list of regexes for all the css files in this epub
                     css_regexes = {}
@@ -547,8 +552,8 @@ class EpubCheck(BaseCheck):
                                 css = os.path.basename(resource_name).lower()
                                 css_enc = six.moves.urllib.request.pathname2url(css).lower()
                             except:
-                                self.log.error('ERROR parsing book: ', path_to_book)
-                                self.log.error('\tIssue with CSS name: ', resource_name)
+                                self.log.error(_('ERROR parsing book: '), path_to_book)
+                                self.log.error(_('\tIssue with CSS name: '), resource_name)
                                 self.log(traceback.format_exc())
                                 return False
                             css_regexes[resource_name] = [re.compile(RE_CSS % css, re.UNICODE)]
@@ -572,7 +577,7 @@ class EpubCheck(BaseCheck):
                     if css_regexes:
                         self.log(get_title_authors_text(db, book_id))
                         for resource_name in css_regexes.keys():
-                            self.log('\tUnused CSS file: %s'%resource_name)
+                            self.log(_('\tUnused CSS file: %s')%resource_name)
                         return True
                     return False
 
@@ -585,9 +590,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have unused CSS files',
+                             no_match_msg=_('No searched ePub books have unused CSS files'),
                              marked_text='epub_unused_css_files',
-                             status_msg_type='ePub books for unused CSS files')
+                             status_msg_type=_('ePub books for unused CSS files'))
 
 
     def check_epub_unused_images(self):
@@ -596,13 +601,13 @@ class EpubCheck(BaseCheck):
         def evaluate_book(book_id, db):
             path_to_book = db.format_abspath(book_id, 'EPUB', index_is_id=True)
             if not path_to_book:
-                self.log.error('ERROR: EPUB format is missing: ', get_title_authors_text(db, book_id))
+                self.log.error(_('ERROR: EPUB format is missing: '), get_title_authors_text(db, book_id))
                 return False
             try:
                 with ZipFile(path_to_book, 'r') as zf:
                     contents = zf.namelist()
                     if self._is_drm_encrypted(zf, contents):
-                        self.log.error('SKIPPING BOOK (DRM Encrypted): ', get_title_authors_text(db, book_id))
+                        self.log.error(_('SKIPPING BOOK (DRM Encrypted): '), get_title_authors_text(db, book_id))
                         return False
                     # Build a list of regexes for all the image files in this epub
                     image_regexes = {}
@@ -617,7 +622,7 @@ class EpubCheck(BaseCheck):
                                 image_enc = six.moves.urllib.request.pathname2url(image).lower()
                             except:
                                 self.log.error('ERROR parsing book: ', path_to_book)
-                                self.log.error('\tIssue with image name: ', resource_name)
+                                self.log.error(_('\tIssue with image name: '), resource_name)
                                 self.log(traceback.format_exc())
                                 return False
                             image_regexes[resource_name] = [re.compile(RE_IMAGE % image, re.UNICODE)]
@@ -641,7 +646,7 @@ class EpubCheck(BaseCheck):
                     if image_regexes:
                         self.log(get_title_authors_text(db, book_id))
                         for resource_name in image_regexes.keys():
-                            self.log('\tUnused image file: %s'%resource_name)
+                            self.log(_('\tUnused image file: %s')%resource_name)
                         return True
                     return False
 
@@ -654,9 +659,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have unused image files',
+                             no_match_msg=_('No searched ePub books have unused image files'),
                              marked_text='epub_unused_images',
-                             status_msg_type='ePub books for unused image files')
+                             status_msg_type=_('ePub books for unused image files'))
 
 
     def check_epub_broken_image_links(self):
@@ -666,13 +671,13 @@ class EpubCheck(BaseCheck):
         def evaluate_book(book_id, db):
             path_to_book = db.format_abspath(book_id, 'EPUB', index_is_id=True)
             if not path_to_book:
-                self.log.error('ERROR: EPUB format is missing: ', get_title_authors_text(db, book_id))
+                self.log.error(_('ERROR: EPUB format is missing: '), get_title_authors_text(db, book_id))
                 return False
             try:
                 with ZipFile(path_to_book, 'r') as zf:
                     contents = zf.namelist()
                     if self._is_drm_encrypted(zf, contents):
-                        self.log.error('SKIPPING BOOK (DRM Encrypted): ', get_title_authors_text(db, book_id))
+                        self.log.error(_('SKIPPING BOOK (DRM Encrypted): '), get_title_authors_text(db, book_id))
                         return False
                     # Build a list of all the image files in this epub
                     image_map = {}
@@ -711,7 +716,7 @@ class EpubCheck(BaseCheck):
                                     if not found_broken:
                                         self.log(get_title_authors_text(db, book_id))
                                         found_broken = True
-                                    self.log('\tBroken image link in:', resource_name, ' of ', match)
+                                    self.log(_('\tBroken image link in:'), resource_name, _(' of '), match)
                     return found_broken
 
             except InvalidEpub as e:
@@ -723,9 +728,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have broken image links',
+                             no_match_msg=_('No searched ePub books have broken image links'),
                              marked_text='epub_broken_image_links',
-                             status_msg_type='ePub books for broken image links')
+                             status_msg_type=_('ePub books for broken image links'))
 
 
     def check_epub_files(self, files, text, marked, show_log=True):
@@ -768,9 +773,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have '+text,
+                             no_match_msg=_('No searched ePub books have ')+text,
                              marked_text=marked,
-                             status_msg_type='ePub books for '+text)
+                             status_msg_type=_('ePub books for ')+text)
 
 
     def check_epub_replaceable_cover(self, check_has_cover):
@@ -802,22 +807,22 @@ class EpubCheck(BaseCheck):
                 with ZipFile(path_to_book, 'r') as zf:
                     opf_name = self._get_opf_xml(path_to_book, zf)
                     if not opf_name:
-                        self.log.error('No OPF file in:', get_title_authors_text(db, book_id))
+                        self.log.error(_('No OPF file in:'), get_title_authors_text(db, book_id))
                         return not check_has_cover
                     opf_xml = self._get_opf_tree(zf, opf_name)
                     rcover = raster_cover(opf_xml)
                     if not rcover:
-                        self.log('No supported meta tag or non-xml cover in:', get_title_authors_text(db, book_id))
+                        self.log(_('No supported meta tag or non-xml cover in:'), get_title_authors_text(db, book_id))
                         return not check_has_cover
                     cpath = posixpath.join(posixpath.dirname(opf_name), rcover)
                     is_encrypted_cover = self._get_encryption_meta(zf).is_encrypted(cpath)
                     if is_encrypted_cover:
-                        self.log('DRM Encrypted cover in:', get_title_authors_text(db, book_id))
+                        self.log(_('DRM Encrypted cover in:'), get_title_authors_text(db, book_id))
                         return check_has_cover
 
                     image_extension = os.path.splitext(cpath)[1].lower()
                     if image_extension not in ('.png', '.jpg', '.jpeg'):
-                        self.log('Invalid cover image extension (%s) in:'%image_extension, get_title_authors_text(db, book_id))
+                        self.log(_('Invalid cover image extension (%s) in:')%image_extension, get_title_authors_text(db, book_id))
                         return not check_has_cover
                 return check_has_cover
 
@@ -830,14 +835,14 @@ class EpubCheck(BaseCheck):
                 return not check_has_cover
 
         if check_has_cover:
-            msg = 'No searched ePub books have replaceable covers'
+            msg = _('No searched ePub books have replaceable covers')
             marked_text = 'epub_has_replaceable_cover'
         else:
-            msg = 'All searched ePub books have replaceable covers'
+            msg = _('All searched ePub books have replaceable covers')
             marked_text = 'epub_not_replaceable_cover'
         self.check_all_files(evaluate_book,
                              no_match_msg=msg, marked_text=marked_text,
-                             status_msg_type='ePub books for replaceable covers')
+                             status_msg_type=_('ePub books for replaceable covers'))
 
 
     def check_epub_calibre_svg_cover(self, check_has_svg_cover):
@@ -873,14 +878,14 @@ class EpubCheck(BaseCheck):
                 return not check_has_svg_cover
 
         if check_has_svg_cover:
-            msg = 'No searched ePub books have calibre SVG covers embedded'
+            msg = _('No searched ePub books have calibre SVG covers embedded')
             marked_text = 'epub_has_calibre_svg_cover'
         else:
-            msg = 'All searched ePub books have calibre SVG covers embedded'
+            msg = _('All searched ePub books have calibre SVG covers embedded')
             marked_text = 'epub_missing_calibre_svg_cover'
         self.check_all_files(evaluate_book,
                              no_match_msg=msg, marked_text=marked_text,
-                             status_msg_type='ePub books for calibre SVG covers')
+                             status_msg_type=_('ePub books for calibre SVG covers'))
 
 
     def check_epub_calibre_cover(self, check_has_cover):
@@ -917,14 +922,14 @@ class EpubCheck(BaseCheck):
                 return not check_has_cover
 
         if check_has_cover:
-            msg = 'No searched ePub books have calibre covers embedded'
+            msg = _('No searched ePub books have calibre covers embedded')
             marked_text = 'epub_has_calibre_cover'
         else:
-            msg = 'All searched ePub books have calibre covers embedded'
+            msg = _('All searched ePub books have calibre covers embedded')
             marked_text = 'epub_missing_calibre_cover'
         self.check_all_files(evaluate_book,
                              no_match_msg=msg, marked_text=marked_text,
-                             status_msg_type='ePub books for calibre covers')
+                             status_msg_type=_('ePub books for calibre covers'))
 
 
     def check_epub_conversion(self, check_converted):
@@ -953,14 +958,14 @@ class EpubCheck(BaseCheck):
                 return not check_converted
 
         if check_converted:
-            msg = 'No searched ePub books have been converted by calibre'
+            msg = _('No searched ePub books have been converted by calibre')
             marked_text = 'epub_calibre_converted'
         else:
-            msg = 'All searched ePub books have been converted by calibre'
+            msg = _('All searched ePub books have been converted by calibre')
             marked_text = 'epub_not_calibre_converted'
         self.check_all_files(evaluate_book,
                              no_match_msg=msg, marked_text=marked_text,
-                             status_msg_type='ePub books for calibre conversions')
+                             status_msg_type=_('ePub books for calibre conversions'))
 
 
     def check_epub_no_container(self):
@@ -985,9 +990,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books have a valid container.xml file',
+                             no_match_msg=_('All searched ePub books have a valid container.xml file'),
                              marked_text='epub_missing_container_xml',
-                             status_msg_type='ePub books for missing container.xml')
+                             status_msg_type=_('ePub books for missing container.xml'))
 
 
     def check_epub_namespaces(self):
@@ -1003,19 +1008,19 @@ class EpubCheck(BaseCheck):
                     if 'META-INF/container.xml' not in contents:
                         # We have no container xml so file is completely knackered
                         self.log.info(path_to_book)
-                        self.log.error('\tMissing container.xml file in', path_to_book)
+                        self.log.error(_('\tMissing container.xml file in'), path_to_book)
                         return True
                     data = self.zf_read(zf, 'META-INF/container.xml')
                     if OCF_NS not in data:
                         self.log.info(path_to_book)
-                        self.log.error('\tIncorrect container.xml namespace in', path_to_book)
+                        self.log.error(_('\tIncorrect container.xml namespace in'), path_to_book)
                         return True
                     opf_name = self._get_opf_xml(path_to_book, zf)
                     if opf_name:
                         data = self.zf_read(zf, opf_name)
                         if OPF_NS not in data:
                             self.log.info(path_to_book)
-                            self.log.error('\tIncorrect .opf manifest namespace in', path_to_book)
+                            self.log.error(_('\tIncorrect .opf manifest namespace in'), path_to_book)
                             return True
                 return False
 
@@ -1025,9 +1030,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books have valid namespaces',
+                             no_match_msg=_('All searched ePub books have valid namespaces'),
                              marked_text='epub_namespace_invalid',
-                             status_msg_type='ePub books for namespaces check')
+                             status_msg_type=_('ePub books for namespaces check'))
 
 
     def check_epub_non_dc_metadata(self):
@@ -1064,9 +1069,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books have only dc: elements in manifest',
+                             no_match_msg=_('All searched ePub books have only dc: elements in manifest'),
                              marked_text='epub_non_dc_metadata',
-                             status_msg_type='ePub books for non dc: metadata check')
+                             status_msg_type=_('ePub books for non dc: metadata check'))
 
 
     def check_epub_opf_files_missing(self):
@@ -1088,7 +1093,7 @@ class EpubCheck(BaseCheck):
                             if resource_name not in contents:
                                 if not displayed_path:
                                     displayed_path = True
-                                    self.log('Manifest file missing from: <b>%s</b>'%get_title_authors_text(db, book_id))
+                                    self.log(_('Manifest file missing from: <b>%s</b>')%get_title_authors_text(db, book_id))
                                 self.log('\t<span style="color:darkgray">%s</span>'%resource_name)
                                 missing = True
                 return missing
@@ -1102,9 +1107,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books have a valid opf manifest',
+                             no_match_msg=_('All searched ePub books have a valid opf manifest'),
                              marked_text='epub_manifest_files_missing',
-                             status_msg_type='ePub books for missing files in opf')
+                             status_msg_type=_('ePub books for missing files in opf'))
 
 
     def check_epub_toc_hierarchical(self):
@@ -1129,7 +1134,7 @@ class EpubCheck(BaseCheck):
                                 if len(nested) > 0:
                                     return True
                             except UnicodeDecodeError:
-                                self.log.error('Ignoring DRM protected ePub: ', path_to_book)
+                                self.log.error(_('Ignoring DRM protected ePub: '), path_to_book)
                                 return False
                 return False
 
@@ -1142,9 +1147,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books have a flattened NCX TOC',
+                             no_match_msg=_('All searched ePub books have a flattened NCX TOC'),
                              marked_text='epub_ncx_toc_hierarchical',
-                             status_msg_type='ePub books for NCX TOC hierarchy')
+                             status_msg_type=_('ePub books for NCX TOC hierarchy'))
 
 
     def check_epub_toc_size(self):
@@ -1168,7 +1173,7 @@ class EpubCheck(BaseCheck):
                                 count = len(ncx_xml.split('<navLabel>')) - 1
                                 break
                             except UnicodeDecodeError:
-                                self.log.error('Ignoring DRM protected ePub: ', path_to_book)
+                                self.log.error(_('Ignoring DRM protected ePub: '), path_to_book)
                                 return True
                 if count >= 3:
                     return False
@@ -1188,9 +1193,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books have a NCX TOC with at least 3 items',
+                             no_match_msg=_('All searched ePub books have a NCX TOC with at least 3 items'),
                              marked_text='epub_ncx_toc_too_small',
-                             status_msg_type='ePub books for NCX TOC count')
+                             status_msg_type=_('ePub books for NCX TOC count'))
 
 
     def check_epub_toc_broken_links(self):
@@ -1245,9 +1250,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books have a NCX TOC with valid links',
+                             no_match_msg=_('All searched ePub books have a NCX TOC with valid links'),
                              marked_text='epub_ncx_toc_broken_links',
-                             status_msg_type='ePub books for broken NCX TOC links')
+                             status_msg_type=_('ePub books for broken NCX TOC links'))
 
 
     def check_epub_guide_broken_links(self):
@@ -1290,9 +1295,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books have valid guide entries',
+                             no_match_msg=_('All searched ePub books have valid guide entries'),
                              marked_text='epub_guide_broken_links',
-                             status_msg_type='ePub books for broken guide links')
+                             status_msg_type=_('ePub books for broken guide links'))
 
 
     def check_epub_html_size(self):
@@ -1326,9 +1331,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have oversize html files',
+                             no_match_msg=_('No searched ePub books have oversize html files'),
                              marked_text='epub_html_oversize',
-                             status_msg_type='ePub books for oversize html files')
+                             status_msg_type=_('ePub books for oversize html files'))
 
 
     def check_epub_drm(self):
@@ -1353,9 +1358,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have DRM',
+                             no_match_msg=_('No searched ePub books have DRM'),
                              marked_text='epub_drm',
-                             status_msg_type='ePub books for DRM')
+                             status_msg_type=_('ePub books for DRM'))
 
 
     def check_epub_drm_meta(self):
@@ -1387,9 +1392,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have Adobe DRM meta tags',
+                             no_match_msg=_('No searched ePub books have Adobe DRM meta tags'),
                              marked_text='epub_adobe_meta_tags',
-                             status_msg_type='ePub books for Adobe DRM meta tags')
+                             status_msg_type=_('ePub books for Adobe DRM meta tags'))
 
 
     def check_epub_address(self):
@@ -1421,9 +1426,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have \<address\> smart tags',
+                             no_match_msg=_('No searched ePub books have \<address\> smart tags'),
                              marked_text='epub_address_tags',
-                             status_msg_type='ePub books for <address> smart tags')
+                             status_msg_type=_('ePub books for <address> smart tags'))
 
 
     def check_epub_embedded_fonts(self):
@@ -1442,7 +1447,7 @@ class EpubCheck(BaseCheck):
                         if extension in FONT_FILES:
                             if not displayed_path:
                                 displayed_path = True
-                                self.log('Font found in: <b>%s</b>'%get_title_authors_text(db, book_id))
+                                self.log(_('Font found in: <b>%s</b>')%get_title_authors_text(db, book_id))
                             self.log('\t<span style="color:darkgray">%s</span>'%resource_name)
                             found = True
                 return found
@@ -1456,9 +1461,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have embedded fonts',
+                             no_match_msg=_('No searched ePub books have embedded fonts'),
                              marked_text='epub_embedded_fonts',
-                             status_msg_type='ePub books for embedded fonts')
+                             status_msg_type=_('ePub books for embedded fonts'))
 
 
     def check_epub_font_faces(self):
@@ -1476,13 +1481,13 @@ class EpubCheck(BaseCheck):
                         if extension in CSS_FILES:
                             css = self.zf_read(zf, resource_name).lower()
                             if RE_FONT_FACE.search(css):
-                                self.log('CSS file contains @font-face: <b>%s</b>'%get_title_authors_text(db, book_id))
+                                self.log(_('CSS file contains @font-face: <b>%s</b>')%get_title_authors_text(db, book_id))
                                 self.log('\t<span style="color:darkgray">%s</span>'%resource_name)
                                 return True
                         elif extension not in NON_HTML_FILES:
                             data = self.zf_read(zf, resource_name).lower()
                             if RE_FONT_FACE.search(data):
-                                self.log('At least one html file contains @font-face: <b>%s</b>'%get_title_authors_text(db, book_id))
+                                self.log(_('At least one html file contains @font-face: <b>%s</b>')%get_title_authors_text(db, book_id))
                                 self.log('\t<span style="color:darkgray">%s</span>'%resource_name)
                                 return True
                 return False
@@ -1496,9 +1501,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have @font-face declarations',
+                             no_match_msg=_('No searched ePub books have @font-face declarations'),
                              marked_text='epub_font_face',
-                             status_msg_type='ePub books for @font-face declarations')
+                             status_msg_type=_('ePub books for @font-face declarations'))
 
 
     def check_epub_css_justify(self):
@@ -1527,9 +1532,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books have text-align:justify',
+                             no_match_msg=_('All searched ePub books have text-align:justify'),
                              marked_text='epub_css_justify',
-                             status_msg_type='ePub books for text-align:justify')
+                             status_msg_type=_('ePub books for text-align:justify'))
 
 
     def check_epub_css_margins(self):
@@ -1555,10 +1560,10 @@ class EpubCheck(BaseCheck):
                         value = float(re.sub('[^\d.]+', '', style[1]))
 
                         if property_type == 'margin': # Not a calibre set value, so we will just replace the whole value
-                            self.log('\t\t\'margin\' property found, so does not match calibre preferences')
+                            self.log(_('\t\t\'margin\' property found, so does not match calibre preferences'))
                             return True
                         if value < 0:  # Definitely not going to match, since negative values reserved to omit margins
-                            self.log('\t\tNegative margin found, so does not match calibre preferences')
+                            self.log(_('\t\tNegative margin found, so does not match calibre preferences'))
                             return True
                         if property_type.startswith('margin_'):
                             if style[1].endswith('pt'):  # Possibly created by calibre since in pts, add to our dimensions
@@ -1567,7 +1572,7 @@ class EpubCheck(BaseCheck):
                                 if value == 0.0:
                                     doc_defined_margins[property_type] = value
                                 else:
-                                    self.log('\t\tMargins is not defined in pts so does not match calibre preferences')
+                                    self.log(_('\t\tMargins is not defined in pts so does not match calibre preferences'))
                                     return True
 
             # If we got to here, then we found "some" margins in the style that are
@@ -1575,19 +1580,19 @@ class EpubCheck(BaseCheck):
             for pref, pref_value in self.user_margins.items():
                 if pref_value < 0.0:  # The user does not want this margin defined
                     if pref in doc_defined_margins:  # Currently is defined, so remove it
-                        self.log('\t\tMargins are defined in pts but don\'t match calibre preferences')
+                        self.log(_('\t\tMargins are defined in pts but don\'t match calibre preferences'))
                         return True
                 elif pref not in doc_defined_margins: # Not defined, so add it
-                    self.log('\t\tMargins are defined in pts but don\'t match calibre preferences')
+                    self.log(_('\t\tMargins are defined in pts but don\'t match calibre preferences'))
                     return True
                 else:
                     doc_value = doc_defined_margins[pref]
                     if doc_value != pref_value:
                         if not (doc_value < pref_value and allow_less):
-                            self.log('\t\tMargins are defined in pts but don\'t match calibre preferences')
+                            self.log(_('\t\tMargins are defined in pts but don\'t match calibre preferences'))
                             return True
             # If we got to here everything matches our prefs
-            self.log('\t\tMargins match calibre preferences')
+            self.log(_('\t\tMargins match calibre preferences'))
             return False
 
         def get_user_margins():
@@ -1613,7 +1618,7 @@ class EpubCheck(BaseCheck):
                 return False
             try:
                 with ZipFile(self.path_to_book, 'r') as zf:
-                    self.log('\tAnalyzing margins in '+self.path_to_book)
+                    self.log(_('\tAnalyzing margins in ')+self.path_to_book)
                     contents = list(self._manifest_worthy_names(zf))
                     # Check the CSS files for @page and body declarations
                     for resource_name in contents:
@@ -1643,9 +1648,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books match the calibre page setup preferences',
+                             no_match_msg=_('All searched ePub books match the calibre page setup preferences'),
                              marked_text='epub_css_margins',
-                             status_msg_type='ePub books for body or @page css margins')
+                             status_msg_type=_('ePub books for body or @page css margins'))
 
 
     def check_epub_css_no_margins(self):
@@ -1683,9 +1688,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='All searched ePub books have book level margins defined',
+                             no_match_msg=_('All searched ePub books have book level margins defined'),
                              marked_text='epub_css_no_margins',
-                             status_msg_type='ePub books lacking body or @page css margins')
+                             status_msg_type=_('ePub books lacking body or @page css margins'))
 
 
     def check_epub_inline_margins(self):
@@ -1721,9 +1726,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books inline @page margins',
+                             no_match_msg=_('No searched ePub books inline @page margins'),
                              marked_text='epub_inline_margins',
-                             status_msg_type='ePub books using inline @page or body css margins')
+                             status_msg_type=_('ePub books using inline @page or body css margins'))
 
 
     def check_epub_javascript(self):
@@ -1744,15 +1749,15 @@ class EpubCheck(BaseCheck):
                     for resource_name in self._manifest_worthy_names(zf):
                         extension = resource_name[resource_name.rfind('.'):].lower()
                         if extension in JAVASCRIPT_FILES:
-                            reasons.append('\tContains .js file: %s'% resource_name)
+                            reasons.append(_('\tContains .js file: %s')% resource_name)
                         elif extension in NON_HTML_FILES:
                             continue
                         else:
                             data = self.zf_read(zf, resource_name)
                             if RE_JAVASCRIPT.search(data):
-                                reasons.append('\tContains inline javascript: %s'% resource_name)
+                                reasons.append(_('\tContains inline javascript: %s')% resource_name)
                     if reasons:
-                        self.log('ePub with Javascript: %s'%get_title_authors_text(db, book_id))
+                        self.log(_('ePub with Javascript: %s')%get_title_authors_text(db, book_id))
                         for reason in reasons:
                             self.log(reason)
                         return True
@@ -1767,9 +1772,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books have javascript',
+                             no_match_msg=_('No searched ePub books have javascript'),
                              marked_text='epub_javascript',
-                             status_msg_type='ePub books for javascript')
+                             status_msg_type=_('ePub books for javascript'))
 
 
     def check_epub_smarten_punctuation(self):
@@ -1793,7 +1798,7 @@ class EpubCheck(BaseCheck):
                         # Only interested in the body without any html tags
                         body_text = self._extract_body_text(data)
                         if body_text.find('\'') != -1 or body_text.find('"') != -1:
-                            self.log('Unsmartened punctuation in: <b>%s</b>'% get_title_authors_text(db, book_id))
+                            self.log(_('Unsmartened punctuation in: <b>%s</b>')% get_title_authors_text(db, book_id))
                             self.log('\t<span style="color:darkgray">%s</span>'% resource_name)
                             return True
                     return False
@@ -1807,9 +1812,9 @@ class EpubCheck(BaseCheck):
                 return False
 
         self.check_all_files(evaluate_book,
-                             no_match_msg='No searched ePub books need punctuation smartened',
+                             no_match_msg=_('No searched ePub books need punctuation smartened'),
                              marked_text='epub_smarten_punctuation',
-                             status_msg_type='ePub books for smarten punctuation')
+                             status_msg_type=_('ePub books for smarten punctuation'))
 
 
     # -----------------------------------------------------------
@@ -1827,10 +1832,10 @@ class EpubCheck(BaseCheck):
                                       '[@media-type="%s" and @full-path]'%guess_type('a.opf')[0]
                                      ), namespaces={'ocf':OCF_NS})
         if not opf_files:
-            raise InvalidEpub('Could not find OPF in:%s'%path_to_book)
+            raise InvalidEpub(_('Could not find OPF in:%s')%path_to_book)
         opf_name = opf_files[0].attrib['full-path']
         if opf_name not in contents:
-            raise InvalidEpub('OPF file in container.xml not found in:%s'%path_to_book)
+            raise InvalidEpub(_('OPF file in container.xml not found in:%s')%path_to_book)
         return opf_name
 
     def _get_opf_item(self, zf, opf_name, xpath, opf_xml=None):

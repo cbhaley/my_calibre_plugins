@@ -9,6 +9,11 @@ __docformat__ = 'restructuredtext en'
 
 from calibre.utils.logging import GUILog
 
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 import calibre_plugins.quality_check.config as cfg
 from calibre_plugins.quality_check.dialogs import QualityProgressDialog, ResultsSummaryDialog
 
@@ -53,24 +58,24 @@ class BaseCheck(object):
                                   status_msg_type)
         cancelled_msg = ''
         if d.wasCanceled():
-            cancelled_msg = ' (cancelled)'
+            cancelled_msg = _(' (cancelled)')
         if show_matches:
             if len(d.result_ids) > 0:
                 self.show_invalid_rows(d.result_ids, marked_text)
                 if self.log.plain_text:
                     sd = ResultsSummaryDialog(self.gui, 'Quality Check',
-                                             '%d matches found%s, see log for details'%(len(d.result_ids), cancelled_msg),
+                                             _('%d matches found%s, see log for details')%(len(d.result_ids), cancelled_msg),
                                              self.log)
                     sd.exec_()
             if no_match_msg:
-                msg = 'Checked %d books, found %d matches%s' %(d.total_count, len(d.result_ids), cancelled_msg)
+                msg = _('Checked %d books, found %d matches%s') %(d.total_count, len(d.result_ids), cancelled_msg)
                 self.gui.status_bar.showMessage(msg)
                 if len(d.result_ids) == 0:
-                    sd = ResultsSummaryDialog(self.gui, 'No Matches', no_match_msg, self.log)
+                    sd = ResultsSummaryDialog(self.gui, _('No Matches'), no_match_msg, self.log)
                     sd.exec_()
         return d.total_count, d.result_ids, cancelled_msg
 
     def show_invalid_rows(self, result_ids, marked_text='true'):
         marked_ids = dict.fromkeys(result_ids, marked_text)
         self.gui.current_db.set_marked_ids(marked_ids)
-        self.gui.search.set_search_string('marked:%s' % marked_text)
+        self.gui.search.set_search_string(_('marked:%s') % marked_text)

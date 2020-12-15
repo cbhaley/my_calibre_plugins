@@ -10,6 +10,11 @@ __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
 try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
+try:
     from PyQt5.Qt import (QVBoxLayout, QLabel, QRadioButton, QDialogButtonBox,
                           QGroupBox, QGridLayout, QComboBox, QProgressDialog,
                           QTimer, QIcon, QTableWidget, QHBoxLayout,
@@ -35,9 +40,9 @@ from calibre_plugins.quality_check.common_utils import (SizePersistedDialog, Ima
 
 class QualityProgressDialog(QProgressDialog):
 
-    def __init__(self, gui, book_ids, callback_fn, db, status_msg_type='books', action_type='Checking'):
+    def __init__(self, gui, book_ids, callback_fn, db, status_msg_type='books', action_type=_('Checking')):
         self.total_count = len(book_ids)
-        QProgressDialog.__init__(self, '', 'Cancel', 0, self.total_count, gui)
+        QProgressDialog.__init__(self, '', _('Cancel'), 0, self.total_count, gui)
         self.setMinimumWidth(500)
         self.book_ids, self.callback_fn, self.db = book_ids, callback_fn, db
         self.action_type, self.status_msg_type = action_type, status_msg_type
@@ -56,7 +61,7 @@ class QualityProgressDialog(QProgressDialog):
         self.i += 1
 
         dtitle = self.db.title(book_id, index_is_id=True)
-        self.setWindowTitle('%s %d %s  (%d matches)...' % (self.action_type, self.total_count, self.status_msg_type, len(self.result_ids)))
+        self.setWindowTitle(_('%s %d %s  (%d matches)...') % (self.action_type, self.total_count, self.status_msg_type, len(self.result_ids)))
         self.setLabelText('%s: %s'%(self.action_type, dtitle))
         if self.callback_fn(book_id, self.db):
             self.result_ids.append(book_id)
@@ -73,9 +78,9 @@ class CompareTypeComboBox(QComboBox):
 
     def __init__(self, parent, allow_equality=True):
         QComboBox.__init__(self, parent)
-        self.addItems(['less than', 'greater than'])
+        self.addItems([_('less than'), _('greater than')])
         if allow_equality:
-            self.addItems(['equal to', 'not equal to'])
+            self.addItems([_('equal to'), _('not equal to')])
 
     def select_text(self, selected_text):
         idx = self.findText(selected_text)
@@ -88,7 +93,7 @@ class CompareTypeComboBox(QComboBox):
 class CoverOptionsDialog(SizePersistedDialog):
 
     def __init__(self, parent):
-        SizePersistedDialog.__init__(self, parent, 'quality check plugin:cover options dialog')
+        SizePersistedDialog.__init__(self, parent, _('quality check plugin:cover options dialog'))
 
         self.initialize_controls()
 
@@ -118,14 +123,14 @@ class CoverOptionsDialog(SizePersistedDialog):
         self.setWindowTitle('Quality Check')
         layout = QVBoxLayout(self)
         self.setLayout(layout)
-        title_layout = ImageTitleLayout(self, 'images/quality_check.png', 'Cover Search Options')
+        title_layout = ImageTitleLayout(self, 'images/quality_check.png', _('Cover Search Options'))
         layout.addLayout(title_layout)
 
-        options_group = QGroupBox('Search library for books where', self)
+        options_group = QGroupBox(_('Search library for books where'), self)
         layout.addWidget(options_group)
         options_layout = QGridLayout()
         options_group.setLayout(options_layout)
-        self.opt_file_size = QRadioButton('Cover file size is', self)
+        self.opt_file_size = QRadioButton(_('Cover file size is'), self)
         options_layout.addWidget(self.opt_file_size, 0, 0, 1, 1)
         self.file_size_check_type = CompareTypeComboBox(self, allow_equality=False)
         options_layout.addWidget(self.file_size_check_type, 0, 1, 1, 1)
@@ -135,7 +140,7 @@ class CoverOptionsDialog(SizePersistedDialog):
         options_layout.addWidget(self.file_size_spin, 0, 2, 1, 1)
         options_layout.addWidget(QLabel('kb'), 0, 3, 1, 1)
 
-        self.opt_dimensions = QRadioButton('Cover dimensions are', self)
+        self.opt_dimensions = QRadioButton(_('Cover dimensions are'), self)
         options_layout.addWidget(self.opt_dimensions, 1, 0, 1, 1)
         self.dimensions_check_type = CompareTypeComboBox(self)
         options_layout.addWidget(self.dimensions_check_type, 1, 1, 1, 1)
@@ -143,14 +148,14 @@ class CoverOptionsDialog(SizePersistedDialog):
         self.image_width_spin.setMinimum(0)
         self.image_width_spin.setMaximum(99000000)
         options_layout.addWidget(self.image_width_spin, 1, 2, 1, 1)
-        options_layout.addWidget(QLabel('width'), 1, 3, 1, 1)
+        options_layout.addWidget(QLabel(_('width')), 1, 3, 1, 1)
         self.image_height_spin = QtGui.QSpinBox(self)
         self.image_height_spin.setMinimum(0)
         self.image_height_spin.setMaximum(99000000)
         options_layout.addWidget(self.image_height_spin, 2, 2, 1, 1)
-        options_layout.addWidget(QLabel('height'), 2, 3, 1, 1)
+        options_layout.addWidget(QLabel(_('height')), 2, 3, 1, 1)
 
-        self.opt_no_cover = QRadioButton('No cover', self)
+        self.opt_no_cover = QRadioButton(_('No cover'), self)
         options_layout.addWidget(self.opt_no_cover, 3, 0, 1, 1)
 
         # Dialog buttons
@@ -296,7 +301,7 @@ class ExcludableMenusComboBox(QComboBox):
 class ExcludeAddDialog(SizePersistedDialog):
 
     def __init__(self, parent, last_menu_key):
-        SizePersistedDialog.__init__(self, parent, 'quality check plugin:exclude add dialog')
+        SizePersistedDialog.__init__(self, parent, _('quality check plugin:exclude add dialog'))
         self.last_menu_key = last_menu_key
 
         self.initialize_controls()
@@ -305,14 +310,14 @@ class ExcludeAddDialog(SizePersistedDialog):
         self.resize_dialog()
 
     def initialize_controls(self):
-        self.setWindowTitle('Quality Check Add Exclusions')
+        self.setWindowTitle(_('Quality Check Add Exclusions'))
         layout = QVBoxLayout(self)
         self.setLayout(layout)
-        title_layout = ImageTitleLayout(self, 'images/quality_check.png', 'Exclude Books')
+        title_layout = ImageTitleLayout(self, 'images/quality_check.png', _('Exclude Books'))
         layout.addLayout(title_layout)
 
         layout.addSpacing(10)
-        layout.addWidget(QLabel('Exclude selected books(s) from the following Quality Check:'))
+        layout.addWidget(QLabel(_('Exclude selected books(s) from the following Quality Check:')))
         self.menus_combo = ExcludableMenusComboBox(self, self.last_menu_key)
         layout.addWidget(self.menus_combo)
         layout.addSpacing(10)
@@ -416,14 +421,14 @@ class ExcludeViewTableWidget(QTableWidget):
 class ExcludeViewDialog(SizePersistedDialog):
 
     def __init__(self, parent, db, last_menu_key):
-        SizePersistedDialog.__init__(self, parent, 'quality check plugin:exclude view dialog')
+        SizePersistedDialog.__init__(self, parent, _('quality check plugin:exclude view dialog'))
         self.db = db
 
-        self.setWindowTitle('Quality Check View Exclusions')
+        self.setWindowTitle(_('Quality Check View Exclusions'))
 
         layout = QVBoxLayout(self)
         self.setLayout(layout)
-        title_layout = ImageTitleLayout(self, 'images/quality_check.png', 'View Excluded Books')
+        title_layout = ImageTitleLayout(self, 'images/quality_check.png', _('View Excluded Books'))
         layout.addLayout(title_layout)
 
         menus_layout = QHBoxLayout()
@@ -442,7 +447,7 @@ class ExcludeViewDialog(SizePersistedDialog):
         button_layout = QVBoxLayout()
         books_layout.addLayout(button_layout)
         self.remove_button = QtGui.QToolButton(self)
-        self.remove_button.setToolTip('Remove selected books from the exclusions')
+        self.remove_button.setToolTip(_('Remove selected books from the exclusions'))
         self.remove_button.setIcon(get_icon('list_remove.png'))
         self.remove_button.clicked.connect(self.remove_from_list)
         button_layout.addWidget(self.remove_button)
@@ -501,7 +506,7 @@ class ExcludeViewDialog(SizePersistedDialog):
 class SearchEpubDialog(SizePersistedDialog):
 
     def __init__(self, parent):
-        SizePersistedDialog.__init__(self, parent, 'quality check plugin:search epub dialog')
+        SizePersistedDialog.__init__(self, parent, _('quality check plugin:search epub dialog'))
 
         self.initialize_controls()
 
@@ -529,10 +534,10 @@ class SearchEpubDialog(SizePersistedDialog):
         self.setWindowTitle('Quality Check')
         layout = QVBoxLayout(self)
         self.setLayout(layout)
-        title_layout = ImageTitleLayout(self, 'search.png', 'Search ePubs')
+        title_layout = ImageTitleLayout(self, 'search.png', _('Search ePubs'))
         layout.addLayout(title_layout)
 
-        find_group = QGroupBox('Find expression', self)
+        find_group = QGroupBox(_('Find expression'), self)
         layout.addWidget(find_group)
         find_layout = QGridLayout()
         find_group.setLayout(find_layout)
@@ -542,33 +547,33 @@ class SearchEpubDialog(SizePersistedDialog):
         self.search_combo.setCompleter(None)
         find_layout.addWidget(self.search_combo, 0, 0, 1, 2)
 
-        self.ignore_case_checkbox = QCheckBox('&Ignore case', self)
+        self.ignore_case_checkbox = QCheckBox(_('&Ignore case'), self)
         find_layout.addWidget(self.ignore_case_checkbox, 1, 0, 1, 1)
-        self.show_all_matches_checkbox = QCheckBox('&Show all occurrences', self)
-        self.show_all_matches_checkbox.setToolTip('If unchecked, the search of each ePub is stopped as soon as the first match is found.\n'
-                                                  'If checked, all occurrences will be displayed in the log but it will run much slower.')
+        self.show_all_matches_checkbox = QCheckBox(_('&Show all occurrences'), self)
+        self.show_all_matches_checkbox.setToolTip(_('If unchecked, the search of each ePub is stopped as soon as the first match is found.\n'
+                                                  'If checked, all occurrences will be displayed in the log but it will run much slower.'))
         find_layout.addWidget(self.show_all_matches_checkbox, 2, 0, 1, 2)
 
         layout.addSpacing(5)
-        scope_group = QGroupBox('Scope', self)
+        scope_group = QGroupBox(_('Scope'), self)
         layout.addWidget(scope_group)
         scope_layout = QGridLayout()
         scope_group.setLayout(scope_layout)
 
-        self.scope_html_checkbox = QCheckBox('&HTML content', self)
-        self.scope_html_checkbox.setToolTip('Search all html content files, including any html tags.\n'
-                                            'If you also ticked the Plain text content option, this option is ignored.')
-        self.scope_css_checkbox = QCheckBox('&CSS/xpgt stylesheets', self)
-        self.scope_css_checkbox.setToolTip('Search all css or Adobe .xpgt stylesheets')
-        self.scope_plaintext_checkbox = QCheckBox('&Plain text content', self)
-        self.scope_plaintext_checkbox.setToolTip('Search body text of html files with all html tags stripped.\n'
-                                                 'If you also ticked the HTML content option, that is ignored in favour of this.')
-        self.scope_opf_checkbox = QCheckBox('&OPF manifest', self)
-        self.scope_opf_checkbox.setToolTip('Search the .opf manifest file')
-        self.scope_ncx_checkbox = QCheckBox('&NCX TOC', self)
-        self.scope_ncx_checkbox.setToolTip('Search the NCX table of contents file')
-        self.scope_zip_checkbox = QCheckBox('&Zip filenames', self)
-        self.scope_zip_checkbox.setToolTip('Search the filenames inside the ePub (zip) file')
+        self.scope_html_checkbox = QCheckBox(_('&HTML content'), self)
+        self.scope_html_checkbox.setToolTip(_('Search all html content files, including any html tags.\n'
+                                            'If you also ticked the Plain text content option, this option is ignored.'))
+        self.scope_css_checkbox = QCheckBox(_('&CSS/xpgt stylesheets'), self)
+        self.scope_css_checkbox.setToolTip(_('Search all css or Adobe .xpgt stylesheets'))
+        self.scope_plaintext_checkbox = QCheckBox(_('&Plain text content'), self)
+        self.scope_plaintext_checkbox.setToolTip(_('Search body text of html files with all html tags stripped.\n'
+                                                 'If you also ticked the HTML content option, that is ignored in favour of this.'))
+        self.scope_opf_checkbox = QCheckBox(_('&OPF manifest'), self)
+        self.scope_opf_checkbox.setToolTip(_('Search the .opf manifest file'))
+        self.scope_ncx_checkbox = QCheckBox(_('&NCX TOC'), self)
+        self.scope_ncx_checkbox.setToolTip(_('Search the NCX table of contents file'))
+        self.scope_zip_checkbox = QCheckBox(_('&Zip filenames'), self)
+        self.scope_zip_checkbox.setToolTip(_('Search the filenames inside the ePub (zip) file'))
         scope_layout.addWidget(self.scope_html_checkbox, 3, 0, 1, 1)
         scope_layout.addWidget(self.scope_css_checkbox, 3, 1, 1, 1)
         scope_layout.addWidget(self.scope_plaintext_checkbox, 4, 0, 1, 1)
@@ -585,7 +590,7 @@ class SearchEpubDialog(SizePersistedDialog):
     def ok_clicked(self):
         search_text = six.text_type(self.search_combo.currentText()).strip()
         if not search_text:
-            return error_dialog(self, 'No find text',
+            return error_dialog(self, _('No find text'),
                 _('You must specify a regular expression to search for.'), show=True)
         search_opts = {}
         self.previous_finds = [f for f in self.previous_finds if f != search_text]
@@ -606,7 +611,7 @@ class SearchEpubDialog(SizePersistedDialog):
                 any_scope_checked = True
                 break
         if not any_scope_checked:
-            return error_dialog(self, 'No search scope',
+            return error_dialog(self, _('No search scope'),
                 _('You must specify a scope for the ePub search.'), show=True)
         gprefs[self.unique_pref_name+':search_opts'] = search_opts
         self.search_opts = search_opts

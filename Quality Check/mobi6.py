@@ -7,6 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2012, Kovid Goyal <kovid@kovidgoyal.net>'
 __docformat__ = 'restructuredtext en'
 
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 import struct
 from io import BytesIO
 
@@ -153,7 +158,7 @@ class MinimalMobiUpdater(MetadataUpdater):
         exth = b''.join(exth)
 
         if getattr(self, 'exth', None) is None:
-            raise MobiError('No existing EXTH record. Cannot update ASIN.')
+            raise MobiError(_('No existing EXTH record. Cannot update ASIN.'))
 
         self.create_exth(exth=exth)
 

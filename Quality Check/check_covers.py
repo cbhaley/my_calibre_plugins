@@ -7,6 +7,11 @@ __license__   = 'GPL v3'
 __copyright__ = '2011, Grant Drake <grant.drake@gmail.com>'
 __docformat__ = 'restructuredtext en'
 
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 import os
 from PIL import Image
 from calibre.gui2 import error_dialog
@@ -67,7 +72,7 @@ class CoverCheck(BaseCheck):
                 try:
                     im = Image.open(cover_path)
                 except IOError:
-                    self.log('Failed to identify cover:', cover_path)
+                    self.log(_('Failed to identify cover:'), cover_path)
                 else:
                     (cover_width, cover_height) = im.size
                     if check_type == 'less than':
@@ -100,16 +105,16 @@ class CoverCheck(BaseCheck):
 
         total_count, result_ids, cancelled_msg = self.check_all_files(evaluate_book,
                                                                   marked_text='cover_check',
-                                                                  status_msg_type='books for covers')
+                                                                  status_msg_type=_('books for covers'))
 
-        msg = 'Checked %d books, found %d cover matches%s' % (total_count, len(result_ids), cancelled_msg)
+        msg = _('Checked %d books, found %d cover matches%s' % (total_count, len(result_ids), cancelled_msg))
         self.gui.status_bar.showMessage(msg)
         if len(result_ids) == 0:
-            d = ResultsSummaryDialog(self.gui, 'No Matches%s'%cancelled_msg, 'No matches found', self.log)
+            d = ResultsSummaryDialog(self.gui, _('No Matches%s'%cancelled_msg), _('No matches found'), self.log)
             d.exec_()
         elif self.log.plain_text:
             d = ResultsSummaryDialog(self.gui, 'Quality Check',
-                                     '%d matches found, see log for errors%s'%(total_count,cancelled_msg),
+                                     _('%d matches found, see log for errors%s'%(total_count,cancelled_msg)),
                                      self.log)
             d.exec_()
 

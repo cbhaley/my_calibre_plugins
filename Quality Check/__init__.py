@@ -10,6 +10,11 @@ __docformat__ = 'restructuredtext en'
 # The class that all Interface Action plugin wrappers must inherit from
 from calibre.customize import InterfaceActionBase
 
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
+
 class ActionQualityCheck(InterfaceActionBase):
     '''
     This class is a simple wrapper that provides information about the actual
@@ -20,11 +25,11 @@ class ActionQualityCheck(InterfaceActionBase):
     The reason for having two classes is that it allows the command line
     calibre utilities to run without needing to load the GUI libraries.
     '''
-    name                    = 'Quality Check'
-    description             = 'Query your library for poor quality covers or invalid metadata'
+    name                    = _('Quality Check')
+    description             = _('Query your library for poor quality covers or invalid metadata')
     supported_platforms     = ['windows', 'osx', 'linux']
     author                  = 'Grant Drake with updates by Charles Haley'
-    version                 = (1, 10, 1)
+    version                 = (1, 11, 0)
     minimum_calibre_version = (3, 41, 0)
 
     #: This field defines the GUI plugin class that contains all the code
