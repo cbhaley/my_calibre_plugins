@@ -305,13 +305,16 @@ class Container(object):
         If found, returns that content node.
         '''
         href = self.href_to_name(item.get('href'))
-        for navpoint in self.ncx.xpath('//ncx:navPoint', namespaces={'ncx':NCX_NS}):
-            content = navpoint.xpath('ncx:content', namespaces={'ncx':NCX_NS})
-            if len(content):
-                src = urlunquote(content[0].get('src', None)).partition('#')[0]
-                src_name = self.abshref(src, self.ncx_name)
-                if src_name.lower() == href.lower():
-                    return content[0]
+        xp = self.ncx.xpath('//ncx:navPoint', namespaces={'ncx':NCX_NS})
+        if xp:
+            for navpoint in xp:
+                content = navpoint.xpath('ncx:content', namespaces={'ncx':NCX_NS})
+                if len(content):
+                    src = urlunquote(content[0].get('src', None)).partition('#')[0]
+                    src_name = self.abshref(src, self.ncx_name)
+                    if src_name.lower() == href.lower():
+                        return content[0]
+        return None
 
     def decode(self, data, input_encoding = 'utf-8'):
         """Automatically decode :param:`data` into a `unicode` object."""
