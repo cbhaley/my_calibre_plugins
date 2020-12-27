@@ -24,7 +24,7 @@ class SaveVirtualLibrariesToColumnGUI(InterfaceActionBase):
                             'containing that book then save that list to a custom column')
     supported_platforms = ['windows', 'osx', 'linux']
     author              = 'Charles Haley'
-    version             = (2, 2, 2)
+    version             = (2, 3, 0)
     minimum_calibre_version = (2, 54, 0)
 
     #: This field defines the GUI plugin class that contains all the code
