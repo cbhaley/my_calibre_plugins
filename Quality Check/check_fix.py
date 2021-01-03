@@ -152,7 +152,7 @@ class FixCheck(BaseCheck):
                 return False
             mark_book = False
             for fmt in formats.split(','):
-                db_size = db.sizeof_format(book_id, fmt, index_is_id=True)
+                db_size = db.new_api.format_db_size(book_id, fmt)
                 book_path = db.format_abspath(book_id, fmt, index_is_id=True)
                 if not book_path:
                     self.log.error('Unable to find path to book id:', book_id, db.title(book_id, index_is_id=True))
@@ -165,7 +165,12 @@ class FixCheck(BaseCheck):
                         self.log('Format size change for fmt:',fmt,'from:',db_size,'to:',actual_size)
                         db.format_metadata(book_id, fmt, update_db=True, commit=True)
             return mark_book
-
+        if not (hasattr(self.gui.current_db, 'new_api') and
+                hasattr(self.gui.current_db.new_api, 'format_db_size')):
+            return error_dialog(self.gui, _('Quality Check failed'),
+                            _('"Check and repair book sizes" requires calibre '
+                              'version 5.9 or higher.'),
+                            show=True, show_copy_button=False)
         total_count, result_ids, cancelled_msg = self.check_all_files(evaluate_book,
                                                                   marked_text='file_size_updated',
                                                                   status_msg_type='books for invalid file sizes')
