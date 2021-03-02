@@ -304,6 +304,9 @@ class Container(object):
         element with an @src attribute that points to the same href.
         If found, returns that content node.
         '''
+        if not self.ncx_name:
+            self.log('\t  No NCX found')
+            return None
         href = self.href_to_name(item.get('href'))
         xp = self.ncx.xpath('//ncx:navPoint', namespaces={'ncx':NCX_NS})
         if xp:
