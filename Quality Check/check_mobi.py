@@ -20,7 +20,7 @@ class MobiCheck(BaseCheck):
     All checks related to working with MOBI formats.
     '''
     MOBI_FORMATS = ['MOBI', 'AZW', 'AZW3']
-    
+
     def __init__(self, gui):
         BaseCheck.__init__(self, gui, 'formats:=mobi or formats:=azw or formats:=azw3')
 
@@ -31,7 +31,6 @@ class MobiCheck(BaseCheck):
             self.check_mobi_missing_asin()
         elif menu_key == 'check_mobi_share_disabled':
             self.check_mobi_share_disabled()
-
         elif menu_key == 'check_mobi_clipping_limit':
             self.check_mobi_clipping_limit()
         else:
@@ -69,7 +68,7 @@ class MobiCheck(BaseCheck):
                             self.log('Missing EBOK tag: <b>%s</b>'% get_title_authors_text(db, book_id))
                             self.log.error('\tNo valid book header found in this MOBI file')
                         show_book = True
-                
+
                 return show_book
             except:
                 self.log.error('ERROR parsing book: ', path_to_book)
@@ -110,7 +109,7 @@ class MobiCheck(BaseCheck):
                             self.log('Missing ASIN: <b>%s</b>'% get_title_authors_text(db, book_id))
                             self.log.error('\tNo valid book header found in this %s file'%fmt)
                         show_book = True
-                        
+
                 return show_book
             except:
                 self.log.error('ERROR parsing book: ', path_to_book)
@@ -128,7 +127,7 @@ class MobiCheck(BaseCheck):
         def evaluate_book(book_id, db):
             try:
                 show_book = False
-                for fmt in self.MOBI_FORMATS:
+                for fmt in ('MOBI',): #Yes, this is strange but I don't want to rewrite the loop
                     if not db.has_format(book_id, fmt, index_is_id=True):
                         continue
                     path_to_book = db.format_abspath(book_id, 'MOBI', index_is_id=True)
@@ -155,7 +154,7 @@ class MobiCheck(BaseCheck):
                             self.log('Missing ASIN: <b>%s</b>'% get_title_authors_text(db, book_id))
                             self.log.error('\tNo valid book header found in this %s file'%fmt)
                         show_book = True
-                        
+
                 return show_book
             except:
                 self.log.error('ERROR parsing book: ', path_to_book)
