@@ -192,7 +192,7 @@ class FixCheck(BaseCheck):
             if existing_path == new_path:
                 return False
             self.log('Renaming book: %s => %s' % (existing_path, new_path))
-            db.backend.update_path(book_id, title, author, db.new_api.fields['path'], db.new_api.fields['formats'])
+            db.new_api.update_path(set([book_id]))
             return True
 
         total_count, result_ids, cancelled_msg = self.check_all_files(evaluate_book,
