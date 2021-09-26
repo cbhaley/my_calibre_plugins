@@ -106,11 +106,6 @@ msgstr "Comprobó %d libros, se encontraron%d coincidencias con%s"
 msgid "No Matches"
 msgstr "No hay coincidencias"
 
-#: check_base.py:81
-#, python-format
-msgid "marked:%s"
-msgstr "marcado:%s"
-
 #: check_covers.py:31 check_epub.py:181 check_fix.py:45 check_metadata.py:65
 #: check_missing.py:42 check_mobi.py:38
 msgid "Quality Check failed"

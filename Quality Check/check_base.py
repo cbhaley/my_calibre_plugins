@@ -78,4 +78,4 @@ class BaseCheck(object):
     def show_invalid_rows(self, result_ids, marked_text='true'):
         marked_ids = dict.fromkeys(result_ids, marked_text)
         self.gui.current_db.set_marked_ids(marked_ids)
-        self.gui.search.set_search_string(_('marked:%s') % marked_text)
+        self.gui.search.set_search_string('marked:%s' % marked_text)
