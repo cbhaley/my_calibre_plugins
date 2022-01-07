@@ -29,7 +29,7 @@ class ActionQualityCheck(InterfaceActionBase):
     description             = _('Query your library for poor quality covers or invalid metadata')
     supported_platforms     = ['windows', 'osx', 'linux']
     author                  = 'Grant Drake with updates by others'
-    version                 = (1, 11, 4)
+    version                 = (1, 12, 0)
     minimum_calibre_version = (3, 41, 0)
 
     #: This field defines the GUI plugin class that contains all the code

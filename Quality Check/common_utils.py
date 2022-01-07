@@ -11,19 +11,32 @@ __docformat__ = 'restructuredtext en'
 import os
 
 try:
-    from PyQt5 import Qt as QtGui
-    from PyQt5.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
-                          QTableWidgetItem, QFont, QLineEdit, QComboBox,
-                          QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
-                          QRegExpValidator, QRegExp, QTextEdit,
-                          QListWidget, QAbstractItemView)
+    import qt.core as QtGui
+    from qt.core import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+                         QTableWidgetItem, QFont, QLineEdit, QComboBox,
+                         QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
+                         QTextEdit,
+                         QListWidget, QAbstractItemView)
+    from qt.core import QRegularExpressionValidator as QRegExpValidator
+    from qt.core import QRegularExpression as QRegExp
+
+    using_Qt6 = True
 except:
-    from PyQt4 import QtGui
-    from PyQt4.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
-                          QTableWidgetItem, QFont, QLineEdit, QComboBox,
-                          QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
-                          QRegExpValidator, QRegExp, QTextEdit,
-                          QListWidget, QAbstractItemView)
+    using_Qt6 = False
+    try:
+        from PyQt5 import Qt as QtGui
+        from PyQt5.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+                              QTableWidgetItem, QFont, QLineEdit, QComboBox,
+                              QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
+                              QRegExpValidator, QRegExp, QTextEdit,
+                              QListWidget, QAbstractItemView)
+    except ImportError:
+        from PyQt4 import QtGui
+        from PyQt4.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+                              QTableWidgetItem, QFont, QLineEdit, QComboBox,
+                              QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
+                              QRegExpValidator, QRegExp, QTextEdit,
+                              QListWidget, QAbstractItemView)
 
 from calibre.constants import iswindows
 from calibre.gui2 import gprefs, error_dialog, UNDEFINED_QDATETIME, info_dialog
@@ -659,7 +672,10 @@ class PrefsViewerDialog(SizePersistedDialog):
         self.keys_list.setAlternatingRowColors(True)
         ml.addWidget(self.keys_list)
         self.value_text = QTextEdit(self)
-        self.value_text.setTabStopWidth(24)
+        if using_Qt6:
+            self.value_text.setTabStopDistance(24)
+        else:
+            self.value_text.setTabStopWidth(24)
         self.value_text.setReadOnly(False)
         ml.addWidget(self.value_text, 1)
 
