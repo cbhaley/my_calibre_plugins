@@ -90,8 +90,9 @@ class ModifyEpubAction(InterfaceAction):
 
         update_count = len(modified_epubs_map)
         if update_count == 0:
-            msg = _('No ePub files were updated')
-            return error_dialog(self.gui, _('Modify ePub failed'), msg,
+            msg = _("No ePub files were updated. If this isn't what you expected "
+                    "then press the Show details button to check for errors in the log.")
+            return error_dialog(self.gui, _("Modify ePub changed no files"), msg,
                                 show_copy_button=True, show=True,
                                 det_msg=job.details)
 

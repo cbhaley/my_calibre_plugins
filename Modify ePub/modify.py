@@ -323,7 +323,7 @@ class BookModifier(object):
         if container.is_drm_encrypted():
             self.log('ERROR - cannot remove broken NCX links in DRM encrypted book')
             return False
-        html_names_map = dict((container.abshref(k.lower(), container.root),True) for k in container.get_html_names())
+        html_names_map = dict((k.lower(), True) for k in container.get_html_names())
         return container.delete_broken_toc_links(html_names_map)
 
     def _zero_xpgt_margins(self, container):

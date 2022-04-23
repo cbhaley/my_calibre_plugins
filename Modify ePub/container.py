@@ -939,16 +939,16 @@ class ExtendedContainer(WritableContainer):
             if len(src):
                 src = urlunquote(src[0]).partition('#')[0]
                 link_path = self.abshref(src, self.ncx_name)
-                self.log(f'\t  ncx src={src}, rel path={link_path}, in map: {link_path.lower() in html_names_map}')
+                # self.log(f'\t  ncx src={src}, rel path={link_path}, in map: {link_path.lower() in html_names_map}')
                 if link_path.lower() not in html_names_map:
-                    self.log('\t  TOC Navpoint broken to remove of:', src)
+                    self.log(f'\t  Broken TOC Navpoint removed: {link_path}')
                     return True
             return False
 
         dirtied = False
-        keys = sorted(list(html_names_map.keys()))
-        for i in range(0, len(keys), 5):
-            self.log(f'\tName map {i}:', ', '.join(keys[i:i+5]))
+        # keys = sorted(list(html_names_map.keys()))
+        # for i in range(0, len(keys), 5):
+        #     self.log(f'\tName map {i}:', ', '.join(keys[i:i+5]))
         self.log('\tLooping over ncx entries')
         for navpoint in self.ncx.xpath('//ncx:navPoint', namespaces={'ncx':NCX_NS}):
             if test_navpoint_for_removal(navpoint):
