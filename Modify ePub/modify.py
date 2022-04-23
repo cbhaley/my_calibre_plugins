@@ -298,7 +298,7 @@ class BookModifier(object):
             try:
                 if not child.tag.startswith('{http://purl.org/dc/'):
                     to_remove.append(child)
-                    self.log('\t  Removing child:', child)
+                    self.log('\t  Removing child:', child.tag)
             except:
                 # Dunno how to elegantly handle in lxml parsing
                 # text like <!-- stuff --> which blows up when
