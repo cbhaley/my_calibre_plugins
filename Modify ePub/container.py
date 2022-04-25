@@ -929,7 +929,7 @@ class ExtendedContainer(WritableContainer):
         if not self.ncx_name:
             self.log('\t  No NCX found')
             return False
-        self.log(f'\tncx name: {self.ncx_name}')
+        self.log('\tncx name: ', self.ncx_name)
         ncx_dir = os.path.dirname(self.ncx_name).lower()
         if ncx_dir:
             ncx_dir += '/'
@@ -941,7 +941,7 @@ class ExtendedContainer(WritableContainer):
                 link_path = self.abshref(src, self.ncx_name)
                 # self.log(f'\t  ncx src={src}, rel path={link_path}, in map: {link_path.lower() in html_names_map}')
                 if link_path.lower() not in html_names_map:
-                    self.log(f'\t  Broken TOC Navpoint removed: {link_path}')
+                    self.log('\t  Broken TOC Navpoint removed: ', link_path)
                     return True
             return False
 
