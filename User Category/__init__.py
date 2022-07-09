@@ -24,7 +24,7 @@ class ActionUserCategory(InterfaceActionBase):
     description             = 'Add or remove to user categories based on the selected book(s)'
     supported_platforms     = ['windows', 'osx', 'linux'] # Platforms this plugin will run on
     author                  = 'Grant Drake'
-    version                 = (1, 5, 5)
+    version                 = (1, 5, 6)
     minimum_calibre_version = (0, 8, 18)
 
     #: This field defines the GUI plugin class that contains all the code
