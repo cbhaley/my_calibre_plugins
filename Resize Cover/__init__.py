@@ -24,7 +24,7 @@ class ActionResizeCover(InterfaceActionBase):
     description             = 'Resize cover images to one of your own predefined size(s)'
     supported_platforms     = ['windows', 'osx', 'linux']
     author                  = 'Grant Drake with updates by David Forrester'
-    version                 = (1, 1, 0)
+    version                 = (1, 1, 1)
     minimum_calibre_version = (0, 8, 18)
 
     #: This field defines the GUI plugin class that contains all the code

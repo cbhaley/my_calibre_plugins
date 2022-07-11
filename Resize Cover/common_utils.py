@@ -10,15 +10,29 @@ __docformat__ = 'restructuredtext en'
 import os
 
 try:
-    from PyQt5 import Qt as QtGui
-    from PyQt5.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
-                      QTableWidgetItem, QFont, QLineEdit, QComboBox,
-                      QVBoxLayout, QDialogButtonBox)
-except:
-    from PyQt4 import QtGui
-    from PyQt4.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
-                      QTableWidgetItem, QFont, QLineEdit, QComboBox,
-                      QVBoxLayout, QDialogButtonBox)
+    import qt.core as QtGui
+    from qt.core import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+                         QTableWidgetItem, QFont, QLineEdit, QComboBox,
+                         QVBoxLayout, QDialogButtonBox, QStyledItemDelegate, QDateTime,
+                         QTextEdit,
+                         QListWidget, QAbstractItemView)
+    from qt.core import QRegularExpressionValidator as QRegExpValidator
+    from qt.core import QRegularExpression as QRegExp
+
+    using_Qt6 = True
+except ImportError:
+    using_Qt6 = False
+    try:
+        from PyQt5 import Qt as QtGui
+        from PyQt5.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+                          QTableWidgetItem, QFont, QLineEdit, QComboBox,
+                          QVBoxLayout, QDialogButtonBox)
+    except:
+        from PyQt4 import QtGui
+        from PyQt4.Qt import (Qt, QIcon, QPixmap, QLabel, QDialog, QHBoxLayout,
+                          QTableWidgetItem, QFont, QLineEdit, QComboBox,
+                          QVBoxLayout, QDialogButtonBox)
+
 from calibre.constants import iswindows
 from calibre.gui2 import gprefs, error_dialog
 from calibre.gui2.actions import menu_action_unique_name
@@ -243,7 +257,10 @@ class ReadOnlyTableWidgetItem(QTableWidgetItem):
     def __init__(self, text):
         if text is None:
             text = ''
-        QTableWidgetItem.__init__(self, text, QtGui.QTableWidgetItem.UserType)
+        if using_Qt6:
+            QTableWidgetItem.__init__(self, text, QtGui.QTableWidgetItem.ItemType.UserType)
+        else:
+            QTableWidgetItem.__init__(self, text, QtGui.QTableWidgetItem.UserType)
         self.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled)
 
 
@@ -258,7 +275,7 @@ class CheckableTableWidgetItem(QTableWidgetItem):
 
     def __init__(self, checked=False, is_tristate=False):
         QTableWidgetItem.__init__(self, '')
-        self.setFlags(Qt.ItemFlags(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled ))
+        self.setFlags(Qt.ItemFlag(Qt.ItemIsSelectable | Qt.ItemIsUserCheckable | Qt.ItemIsEnabled ))
         if is_tristate:
             self.setFlags(self.flags() | Qt.ItemIsTristate)
         if checked:
