@@ -1,1 +1,0 @@
-"""KoboTouchExtended device driver."""
