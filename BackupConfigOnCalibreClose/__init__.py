@@ -38,7 +38,7 @@ class BackupConfigOnCalibreClose(LibraryClosedPlugin):
     description = 'Backup the calibre configuration folder when calibre is closed'
     author = 'Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    version = (1, 0, 1)
+    version = (1, 0, 2)
 
     def is_customizable(self):
         return True
@@ -53,10 +53,11 @@ class BackupConfigOnCalibreClose(LibraryClosedPlugin):
         l.addWidget(w, 0, 1, 1, 2)
 
         self.config_dir_widget = w = QLineEdit()
+        self.config_dir_widget_tt = ('<p>The parent folder where the backup folder will be created. '
+                                     'The value "{}" is replaced with the path to the folder containing '
+                                     'the calibre configuration folder</p>'.format(CONFIG_DIR_PARENT_PATTERN))
+        w.textChanged.connect(self.folder_pattern_changed)
         w.setText(plugin_prefs[CONFIG_DIR])
-        w.setToolTip('<p>The parent folder where the backup folder will be created. '
-                     'The value "{}" is replaced with the path to the folder containing '
-                     'the calibre configuration folder</p>'.format(CONFIG_DIR_PARENT_PATTERN))
         l.addWidget(QLabel('Containing folder:'), 1, 0)
         l.addWidget(w, 1, 1)
         w = self.folder_button = QToolButton()
@@ -66,18 +67,21 @@ class BackupConfigOnCalibreClose(LibraryClosedPlugin):
         l.addWidget(w, 1, 3)
 
         self.name_pattern_widget = w = QLineEdit()
+        self.name_pattern_widget_tt = (
+            '<p>The name of the folder that will contain the zip backup files. This folder '
+            'will be created inside the folder named above (<i>Containing folder</i>). The value '
+            '"{0}" is replaced with the base name of the configuration folder. The default is '
+            '"backup-{0}" that becomes "backup-name_of_config_folder"</p><p></p>'.format(CONFIG_FOLDER_PATTERN))
+        w.textChanged.connect(self.name_pattern_changed)
         w.setText(plugin_prefs[NAME_PATTERN])
-        w.setToolTip('<p>The name of the folder that will contain the zip backup files. This folder '
-                     'will be created inside the folder named above (<i>Containing folder</i>). The value '
-                     '"{0}" is replaced with the base name of the configuration folder. The default is '
-                     '"backup-{0}" that becomes "backup-name_of_config_folder"</p>'.format(CONFIG_FOLDER_PATTERN))
         l.addWidget(QLabel('Backup folder name:'), 2, 0)
         l.addWidget(w, 2, 1)
 
         self.date_pattern_widget = w = QLineEdit()
+        self.date_pattern_widget_tt = ('<p>A standard date pattern used as the name the backup file. '
+                                      'The default is year-month-day at hours-minutes-seconds</p><p></p>')
+        w.textChanged.connect(self.date_pattern_changed)
         w.setText(plugin_prefs[DATE_PATTERN])
-        w.setToolTip('<p>A standard date pattern used as the name the backup file. '
-                     'The default is year-month-day at hours-minutes-seconds</p>')
         l.addWidget(QLabel('File name:'), 3, 0)
         l.addWidget(w, 3, 1)
 
@@ -99,6 +103,21 @@ class BackupConfigOnCalibreClose(LibraryClosedPlugin):
         if not f:
             return
         self.config_dir_widget.setText(f)
+
+    def folder_pattern_changed(self, txt):
+        txt = txt.replace(CONFIG_DIR_PARENT_PATTERN, os.path.dirname(config_dir))
+        tt = self.config_dir_widget_tt + '</p><p>Current value: "' + txt + '"</p>'
+        self.config_dir_widget.setToolTip(tt)
+
+    def name_pattern_changed(self, txt):
+        txt = txt.replace(CONFIG_FOLDER_PATTERN, os.path.basename(config_dir))
+        tt = self.name_pattern_widget_tt + '</p><p>Current value: "' + txt + '"</p>'
+        self.name_pattern_widget.setToolTip(tt)
+
+    def date_pattern_changed(self, txt):
+        txt = format_date(now(), txt)
+        tt = self.date_pattern_widget_tt + '</p><p>Current value: "' + txt + '"</p>'
+        self.date_pattern_widget.setToolTip(tt)
 
     def reset_to_defaults(self):
         self.config_dir_widget.setText(CONFIG_DIR_PARENT_PATTERN)
