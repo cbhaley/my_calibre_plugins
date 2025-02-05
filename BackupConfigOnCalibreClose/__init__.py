@@ -15,7 +15,8 @@ class BackupConfigOnCalibreClose(LibraryClosedPlugin):
     description = 'Backup the current calibre configuration folder when calibre is closed'
     author = 'Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    version = (1, 0, 4)
+    version = (1, 1, 0)
+    minimum_calibre_version = (5, 35, 0)
 
     def __init__(self, plugin_path):
         super().__init__(plugin_path)

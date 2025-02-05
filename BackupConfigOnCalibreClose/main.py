@@ -16,7 +16,7 @@ from qt.core import (Qt, QGridLayout, QHBoxLayout, QIcon, QLabel, QLineEdit, QPu
                      QSpinBox, QToolButton, QWidget)
 
 from calibre import config_dir
-from calibre.gui2 import choose_dir, open_local_file
+from calibre.gui2 import choose_dir, open_local_file, timed_print
 from calibre.utils.config import JSONConfig
 from calibre.utils.date import format_date, now, parse_date
 
@@ -212,6 +212,7 @@ class BackupConfigOnCalibreCloseMain:
         plugin_prefs[MORE_DAYS] = self.more_days_widget.value()
 
     def run(self):
+        timed_print(f'[{pi_name}]: starting backup process')
         from calibre.gui2.ui import get_gui
         gui = get_gui()
         if gui is None:
@@ -239,7 +240,8 @@ class BackupConfigOnCalibreCloseMain:
             # Write the archive
             to_file = os.path.join(in_dir, file)
             shutil.make_archive(to_file, 'zip', config_dir)
-            print(f'[{pi_name}]: wrote config backup to {to_file}.zip')
+            to_file += '.zip'
+            timed_print(f'[{pi_name}]: wrote config backup to {to_file}. Size: {os.path.getsize(to_file):n} bytes.')
             # Update the history list of backups
             history = plugin_prefs[HISTORY]
             history.append((str(now()-td), file + '.zip'))
@@ -272,7 +274,7 @@ class BackupConfigOnCalibreCloseMain:
                 md_items[date_ord].append((date, file))
                 continue
             # It is beyond the windows. Delete it
-            print(f'[{pi_name}]: Deleting old config backup file {file}')
+            timed_print(f'[{pi_name}]: Deleting old config backup file {file}')
             with contextlib.suppress(FileNotFoundError):
                 os.remove(os.path.join(in_dir, file))
 
@@ -284,3 +286,4 @@ class BackupConfigOnCalibreCloseMain:
                 with contextlib.suppress(FileNotFoundError):
                     os.remove(os.path.join(in_dir, file))
         plugin_prefs[HISTORY] = new_history
+        timed_print(f'[{pi_name}]: finished')
