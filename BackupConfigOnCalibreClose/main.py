@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__   = "GPL v3"
-__copyright__ = "2016, Charles Haley"
+__copyright__ = "2025, Charles Haley"
 __docformat__ = "restructuredtext en"
+
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
 
 from collections import defaultdict
 import contextlib
@@ -20,7 +24,6 @@ from calibre.gui2 import choose_dir, open_local_file, timed_print
 from calibre.utils.config import JSONConfig
 from calibre.utils.date import format_date, now, parse_date
 
-from calibre_plugins.BackupConfigOnCalibreClose import pi_name
 
 CONFIG_DIR = 'CONFIG_DIR'
 NAME_PATTERN = 'NAME_PATTERN'
@@ -32,13 +35,13 @@ HISTORY = 'HISTORY'
 CONFIG_DIR_PARENT_PATTERN = '{config_dir_parent}'
 CONFIG_FOLDER_PATTERN = '{config_folder_name}'
 NAME_PATTERN_DEFAULT = f'backup-{CONFIG_FOLDER_PATTERN}'
-DATE_PATTERN_DEFAULT = 'yyyy-MM-dd at hh-mm-ss'
+DATE_PATTERN_DEFAULT = 'yyyy-MM-dd -- hh-mm-ss'
 FIRST_DAYS_DEFAULT = 3
 MORE_DAYS_DEFAULT = 10
 
 
-pi_name = 'Backup Configuration Folder'
-plugin_prefs = JSONConfig(f'plugins/{pi_name}')
+pi_name = _('Backup Configuration Folder')
+plugin_prefs = JSONConfig('plugins/Backup Configuration Folder')  # Don't translate this
 plugin_prefs.defaults[CONFIG_DIR] = CONFIG_DIR_PARENT_PATTERN
 plugin_prefs.defaults[NAME_PATTERN] = NAME_PATTERN_DEFAULT
 plugin_prefs.defaults[DATE_PATTERN] = DATE_PATTERN_DEFAULT
@@ -47,14 +50,6 @@ plugin_prefs.defaults[MORE_DAYS] = MORE_DAYS_DEFAULT
 plugin_prefs.defaults[HISTORY] = list()
 
 class BackupConfigOnCalibreCloseMain:
-    name = pi_name
-    description = 'Backup the current calibre configuration folder when calibre is closed'
-    author = 'Charles Haley'
-    supported_platforms = ['windows', 'osx', 'linux']
-    version = (1, 0, 3)
-
-    def is_customizable(self):
-        return True
 
     def config_widget(self):
         mw = QWidget()
@@ -68,68 +63,68 @@ class BackupConfigOnCalibreCloseMain:
                              alignment=(Qt.AlignmentFlag.AlignRight|Qt.AlignmentFlag.AlignVCenter))
             layout.addWidget(widget, row, 1)
 
-        w = QLabel('Documentation is in tooltips')
+        w = QLabel(_('Documentation is in tooltips'))
         l.addWidget(w, gr, 1, 1, 2)
         gr += 1
 
         self.config_dir_widget = w = QLineEdit()
-        self.config_dir_widget_tt = ('<p>The parent folder where the backup folder will be created. '
-                                     'The value "{}" is replaced with the path to the folder containing '
-                                     'the calibre configuration folder</p>'.format(CONFIG_DIR_PARENT_PATTERN))
-        add_row(l, 'Containing folder:', w, gr)
+        self.config_dir_widget_tt = (_('<p>The parent folder where the backup folder will be created. '
+                                       'The value "{}" is replaced with the path to the folder containing '
+                                       'the calibre configuration folder</p>').format(CONFIG_DIR_PARENT_PATTERN))
+        add_row(l, _('Containing folder:'), w, gr)
         w = self.folder_button = QToolButton()
         w.setIcon(QIcon.ic('devices/folder.png'))
-        w.setToolTip('Choose a folder')
+        w.setToolTip(_('Choose a folder'))
         w.clicked.connect(self.choose_folder)
         l.addWidget(w, gr, 2)
         gr += 1
         w = self.config_dir_value = QLabel()
-        add_row(l, 'Current value:', w, gr)
+        add_row(l, _('Current value:'), w, gr)
         gr += 1
 
         w = self.name_pattern_widget = QLineEdit()
-        self.name_pattern_widget_tt = (
+        self.name_pattern_widget_tt = (_(
             '<p>The name of the folder that will contain the zip backup files. This folder '
             'will be created inside the folder named above (<i>Containing folder</i>). The value '
             '"{0}" is replaced with the base name of the configuration folder. The default is '
-            '"backup-{0}" that becomes "backup-name_of_config_folder"</p><p></p>'.format(CONFIG_FOLDER_PATTERN))
-        add_row(l, 'Backup folder name:', w, gr)
+            '"backup-{0}" that becomes "backup-name_of_config_folder"</p><p></p>').format(CONFIG_FOLDER_PATTERN))
+        add_row(l, _('Backup folder name:'), w, gr)
         gr += 1
         w = self.name_pattern_value = QLabel()
-        add_row(l, 'Current value:', w, gr)
+        add_row(l, _('Current value:'), w, gr)
         gr += 1
 
         w = self.folder_path_value = QLabel()
-        add_row(l, 'Full path to backups:', w, gr)
+        add_row(l, _('Full path to backups:'), w, gr)
         gr += 1
 
         w = self.date_pattern_widget = QLineEdit()
-        self.date_pattern_widget_tt = ('<p>A standard date pattern used as the name the backup file. '
-                                      'The default is year-month-day at hours-minutes-seconds</p><p></p>')
-        add_row(l, 'File name:', w, gr)
+        self.date_pattern_widget_tt = (_('<p>A standard date pattern used as the name the backup file. '
+                                         'The default is year-month-day at hours-minutes-seconds</p><p></p>'))
+        add_row(l, _('File name:'), w, gr)
         gr += 1
         w = self.date_pattern_value = QLabel()
-        add_row(l, 'Current value:', w, gr)
+        add_row(l, _('Current value:'), w, gr)
         gr += 1
 
         w = self.first_days_widget = QSpinBox()
         w.setValue(plugin_prefs[FIRST_DAYS])
         w.setMaximum(20)
-        w.setToolTip('<p>Save all backup zip files for the number of days '
-                     'specified here. You can set this to zero, in which case '
-                     'only the last backup of a day will be saved</p>')
-        add_row(l, 'Days to keep all backups:', w, gr)
+        w.setToolTip(_('<p>Save all backup zip files for the number of days '
+                       'specified here. You can set this to zero, in which case '
+                       'only the last backup of a day will be saved</p>'))
+        add_row(l, _('Days to keep all backups:'), w, gr)
         gr += 1
 
         w = self.more_days_widget = QSpinBox()
         w.setValue(plugin_prefs[MORE_DAYS])
         w.setMinimum(1)
-        w.setToolTip('<p>Save the last backup file made during a day for the '
-                                         'number of days specified here. This count starts after '
-                                         'the number of "keep all backups" days specified above. '
-                                         'If this value is set to one and "keep all backups" is '
-                                         'zero, only one backup file will be kept.</p>')
-        add_row(l, 'Days to keep last backup:', w, gr)
+        w.setToolTip(_('<p>Save the last backup file made during a day for the '
+                       'number of days specified here. This count starts after '
+                       'the number of "keep all backups" days specified above. '
+                       'If this value is set to one and "keep all backups" is '
+                       'zero, only one backup file will be kept.</p>'))
+        add_row(l, _('Days to keep last backup:'), w, gr)
         gr += 1
 
         # Do this at the end so all the widgets exist when the signals are raised
@@ -143,10 +138,10 @@ class BackupConfigOnCalibreCloseMain:
         # Add the buttons
         bl = QHBoxLayout()
         bl.addStretch()
-        w = QPushButton('Reset to defaults')
+        w = QPushButton(_('Reset to defaults'))
         w.clicked.connect(self.reset_to_defaults)
         bl.addWidget(w)
-        w = QPushButton('Open backup folder')
+        w = QPushButton(_('Open backup folder'))
         w.clicked.connect(self.open_backup_folder)
         bl.addWidget(w)
         bl.addStretch()
@@ -159,7 +154,7 @@ class BackupConfigOnCalibreCloseMain:
     def choose_folder(self):
         from calibre.gui2.ui import get_gui
         gui = get_gui()
-        f = choose_dir(gui, 'backup config on close', 'Select parent folder')
+        f = choose_dir(gui, 'backup config on close', _('Select parent folder'))
         if not f:
             return
         self.config_dir_widget.setText(f)
@@ -176,24 +171,24 @@ class BackupConfigOnCalibreCloseMain:
         date = format_date(now(), self.date_pattern_widget.text().strip())
         return (conf_dir, name, date)
 
-    def folder_pattern_changed(self, _):
-        p,f,_ = self.get_expanded_patterns()
-        tt = self.config_dir_widget_tt + '</p><p>Current value: "' + p + '"</p>'
+    def folder_pattern_changed(self, ign):
+        p,f,ign = self.get_expanded_patterns()
+        tt = self.config_dir_widget_tt + '</p><p>' + _('Current value:') + ' "' + p + '"</p>'
         self.config_dir_widget.setToolTip(tt)
         self.config_dir_value.setText(p)
         self.folder_path_value.setText(os.path.join(p, f))
 
-    def name_pattern_changed(self, _):
-        p,f,_ = self.get_expanded_patterns()
-        tt = self.name_pattern_widget_tt + '</p><p>Current value: "' + f + '"</p>'
+    def name_pattern_changed(self, ign):
+        p,f,ign = self.get_expanded_patterns()
+        tt = self.name_pattern_widget_tt + '</p><p>' + _('Current value:') + ' "' + f + '"</p>'
         self.name_pattern_widget.setToolTip(tt)
         self.name_pattern_value.setText(f)
         self.folder_path_value.setText(os.path.join(p, f))
 
 
-    def date_pattern_changed(self, _):
-        _,_,fn = self.get_expanded_patterns()
-        tt = self.date_pattern_widget_tt + '</p><p>Current value: "' + fn + '"</p>'
+    def date_pattern_changed(self, ign):
+        ign,ign,fn = self.get_expanded_patterns()
+        tt = self.date_pattern_widget_tt + '</p><p>' + _('Current value:') + ' "' + fn + '"</p>'
         self.date_pattern_widget.setToolTip(tt)
         self.date_pattern_value.setText(fn)
 
@@ -212,7 +207,7 @@ class BackupConfigOnCalibreCloseMain:
         plugin_prefs[MORE_DAYS] = self.more_days_widget.value()
 
     def run(self):
-        timed_print(f'[{pi_name}]: starting backup process')
+        timed_print(f'[{pi_name}]: starting backup process')  # timed_print is for debugging, not to be translated
         from calibre.gui2.ui import get_gui
         gui = get_gui()
         if gui is None:

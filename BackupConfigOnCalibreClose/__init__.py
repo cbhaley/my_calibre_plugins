@@ -1,21 +1,24 @@
 #!/usr/bin/env python
 # vim:fileencoding=UTF-8:ts=4:sw=4:sta:et:sts=4:ai
-from __future__ import (unicode_literals, division, absolute_import, print_function)
 
 __license__   = "GPL v3"
-__copyright__ = "2016, Charles Haley"
+__copyright__ = "2025, Charles Haley"
 __docformat__ = "restructuredtext en"
+
+try:
+    load_translations()
+except NameError:
+    pass # load_translations() added in calibre 1.9
 
 from calibre.customize import LibraryClosedPlugin
 
-pi_name = 'Backup Configuration Folder'
 
 class BackupConfigOnCalibreClose(LibraryClosedPlugin):
-    name = pi_name
-    description = 'Backup the current calibre configuration folder when calibre is closed'
+    name = 'Backup Configuration Folder'
+    description = _('Backup the current calibre configuration folder when calibre is closed')
     author = 'Charles Haley'
     supported_platforms = ['windows', 'osx', 'linux']
-    version = (1, 1, 0)
+    version = (1, 1, 1)
     minimum_calibre_version = (5, 35, 0)
 
     def __init__(self, plugin_path):

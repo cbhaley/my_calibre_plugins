@@ -1,0 +1,134 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"POT-Creation-Date: 2025-02-07 00:27-0300\n"
+"PO-Revision-Date: 2025-02-07 00:30-0300\n"
+"Last-Translator: Dunhill\n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.2\n"
+"X-Poedit-Basepath: .\n"
+"X-Poedit-SearchPath-0: main.py\n"
+"X-Poedit-SearchPath-1: plugin-import-name-BackupConfigOnCalibreClose.txt\n"
+"X-Poedit-SearchPath-2: __init__.py\n"
+
+#: main.py:40
+msgid "yyyy-MM-dd at hh-mm-ss"
+msgstr "aaaa-MM-dd a las hh-mm-ss"
+
+#: main.py:45
+msgid "Backup Configuration Folder"
+msgstr "Carpeta de configuración de backup"
+
+#: main.py:76
+msgid "Documentation is in tooltips"
+msgstr "La documentación se encuentra en la información sobre herramientas"
+
+#: main.py:81
+msgid ""
+"<p>The parent folder where the backup folder will be created. The value "
+"\"{}\" is replaced with the path to the folder containing the calibre "
+"configuration folder</p>"
+msgstr ""
+"<p>La carpeta principal donde se creará la carpeta de respaldo. El valor "
+"\"{}\" se reemplaza con la ruta a la carpeta que contiene la carpeta de "
+"configuración de calibre</p>"
+
+#: main.py:84
+msgid "Containing folder:"
+msgstr "Carpeta que contiene:"
+
+#: main.py:87
+msgid "Choose a folder"
+msgstr "Elija una carpeta"
+
+#: main.py:92 main.py:104 main.py:117
+msgid "Current value:"
+msgstr "Valor actual:"
+
+#: main.py:97
+#, python-brace-format
+msgid ""
+"<p>The name of the folder that will contain the zip backup files. This "
+"folder will be created inside the folder named above (<i>Containing folder</"
+"i>). The value \"{0}\" is replaced with the base name of the configuration "
+"folder. The default is \"backup-{0}\" that becomes \"backup-"
+"name_of_config_folder\"</p><p></p>"
+msgstr ""
+"<p>El nombre de la carpeta que contendrá los archivos de copia de seguridad "
+"zip. Esta carpeta se creará dentro de la carpeta nombrada anteriormente "
+"(<i>Carpeta contenedora</i>). El valor \"{0}\" se reemplaza con el nombre "
+"base de la carpeta de configuración. El valor predeterminado es \"backup-"
+"{0}\" que se convierte en \"backup-name_of_config_folder\"</p><p></p>"
+
+#: main.py:101
+msgid "Backup folder name:"
+msgstr "Nombre de la carpeta de backup:"
+
+#: main.py:108
+msgid "Full path to backups:"
+msgstr "Ruta completa a las copias de seguridad:"
+
+#: main.py:112
+msgid ""
+"<p>A standard date pattern used as the name the backup file. The default is "
+"year-month-day at hours-minutes-seconds</p><p></p>"
+msgstr ""
+"<p>Un patrón de fecha estándar utilizado como nombre del archivo de copia de "
+"seguridad. El valor predeterminado es año-mes-día en horas-minutos-segundos</"
+"p><p></p>"
+
+#: main.py:114
+msgid "File name:"
+msgstr "Nombre del archivo:"
+
+#: main.py:123
+msgid ""
+"<p>Save all backup zip files for the number of days specified here. You can "
+"set this to zero, in which case only the last backup of a day will be saved</"
+"p>"
+msgstr ""
+"<p>Guardar todos los archivos zip de copia de seguridad correspondientes a "
+"la cantidad de días que se especifique aquí. Puede configurarlo en cero, en "
+"cuyo caso solo se guardará la última copia de seguridad de un día.</p>"
+
+#: main.py:126
+msgid "Days to keep all backups:"
+msgstr "Cada cuantos días para hacer backup:"
+
+#: main.py:132
+msgid ""
+"<p>Save the last backup file made during a day for the number of days "
+"specified here. This count starts after the number of \"keep all backups\" "
+"days specified above. If this value is set to one and \"keep all backups\" "
+"is zero, only one backup file will be kept.</p>"
+msgstr ""
+"<p>Guarda el último archivo de copia de seguridad realizado durante un día "
+"durante la cantidad de días especificada aquí. Este recuento comienza "
+"después de la cantidad de días de \"conservar todas las copias de "
+"seguridad\" especificados anteriormente. Si este valor se establece en uno y "
+"\"conservar todas las copias de seguridad\" es cero, solo se conservará un "
+"archivo de copia de seguridad.</p>"
+
+#: main.py:137
+msgid "Days to keep last backup:"
+msgstr "Días para conservar último backup:"
+
+#: main.py:151
+msgid "Reset to defaults"
+msgstr "Restablecer valores"
+
+#: main.py:154
+msgid "Open backup folder"
+msgstr "Abrir carpeta de backup"
+
+#: main.py:167
+msgid "backup config on close"
+msgstr "configuración del backup al cerrar"
+
+#: main.py:167
+msgid "Select parent folder"
+msgstr "Seleccionar carpeta principal"
