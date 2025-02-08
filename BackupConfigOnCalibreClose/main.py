@@ -154,7 +154,7 @@ class BackupConfigOnCalibreCloseMain:
     def choose_folder(self):
         from calibre.gui2.ui import get_gui
         gui = get_gui()
-        f = choose_dir(gui, 'backup config on close', _('Select parent folder'))
+        f = choose_dir(gui, 'backup_config_on_close', _('Select parent folder'))
         if not f:
             return
         self.config_dir_widget.setText(f)
